@@ -15,7 +15,8 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
-	private static final int MAX_HOSTS_TO_DISPLAY = 16;
+//	private static final int MAX_HOSTS_TO_DISPLAY = 16;
+	public static final int MAX_RANGES = 32;
     private CalculateSubnet subnet = new CalculateSubnet();
     TextView textView;
 
@@ -143,6 +144,23 @@ public class MainActivity extends Activity {
         }
     }
 
+	public void formatText(String text, String color, boolean bold, boolean newline)
+	{
+		String boldTag, boldTagEnd;
+		if (bold) {
+			boldTag = "<b>";
+			boldTagEnd = "</b>";
+		} else {
+			boldTag = "";
+			boldTagEnd = "";
+		}
+		String html = "<pre><font color=" + color + ">" + boldTag + text + boldTagEnd + "</b></font></pre>";
+		textView.append(Html.fromHtml(html));
+		if (newline) {
+			textView.append("\n");
+		}
+	}
+
 	protected void displayLogo()
 	{
 		String logoString = "<pre><small><font color=#4169E1><b>IPv4</font><font color=#006400>Subnet\u00A0-\u00A0</b></font></pre>"
@@ -179,52 +197,37 @@ public class MainActivity extends Activity {
         format("Binary Mask", subnet.getBinaryMaskOctets(), true);
         format("Cisco Wildcard", subnet.getWildcard(), true);
         lineBreak(true);
-        format("Usable IPs", Integer.toString(subnet.getMaxHosts()), true);
+        format("Usable IPs", Integer.toString(subnet.getUsableHosts()), true);
         format("Total IPs", Integer.toString(subnet.getNumberOfAddresses()), true);
         lineBreak(true);
-		int max_hosts = subnet.calcMaxHosts();
 
-		if (max_hosts > 1) {
+		if (subnet.getUsableHosts() > 1) {
 			format("Network", subnet.getNetwork(), true);
 			format("Broadcast", subnet.getBroadcast(), true);
-			format("Available Networks", Integer.toString(subnet.calcAvailableSubnets()), true);
+			format("Available Networks", Integer.toString(subnet.getAvailableSubnets()), true);
 			lineBreak(true);
 
-			// convenience variable
-			String max_host_IP = subnet.getMaxHostAddr();
+			format("Network", subnet.getNetwork() + " - " + subnet.getBroadcast(), true);
+			format("Usable", subnet.getMinHostAddr() + " - " + subnet.getMaxHostAddr(), true);
 
-//			if (max_hosts <= MAX_HOSTS_TO_DISPLAY) {
-//				// display the first usable IP
-//				formatWithColors("Host Address", subnet.getMinHostAddr(), "#005500", "#0000ff", true);
-//				// calculate the next usable IP
-//				String next = subnet.getMinHostAddr();
-//				// the first bitwiseAnd last IPs are already accounted for
-//				for (int ip = 0; ip < max_hosts - 2; ip++) {
-//					next = subnet.getNextIPAddress(next);
-//					if (next.equals(subnet.getIpAddr())) {
-//						formatWithColors("Host Address", "<b>" + next + "</b>", "#005500", "#0000c5", true);
-//					} else {
-//						formatWithColors("Host Address", next, "#005500", "#0000ff", true);
-//					}
-//				}
-//				// display the last usable IP
-//				formatWithColors("Host Address", max_host_IP, "#005500", "#0000ff", true);
-//			} else {
-				format("Network", subnet.getNetwork() + " - " + subnet.getBroadcast(), true);
-				format("Usable", subnet.getMinHostAddr() + " - " + subnet.getMaxHostAddr(), true);
-//			}
-
-			if (subnet.calcAvailableSubnets() <= 32) {
+			if (subnet.getAvailableSubnets() <= MAX_RANGES) {
 				lineBreak(true);
-//				int addrs = subnet.getNumberOfAddresses();
+				formatText("Available Network Ranges -------", "#000000", true, true);
 				String[] ranges = subnet.getRanges();
-				for (String range : ranges) {
-					if (range.equals(subnet.getNetwork())) {
-						formatWithColors("Network Range", range, "#000000", "#006400", true);
-					} else {
-						formatWithColors("Network Range", range, "#000000", "#cc0000", true);
+				if (ranges != null) {
+					int count = 1;
+					for (String range : ranges) {
+						if (range != null && range.split(" - ")[0].equals(subnet.getNetwork())) {
+							formatWithColors(Integer.toString(count) + ". Network", range, "#000000", "#006400", true);
+						} else {
+							formatWithColors(Integer.toString(count) + ". Network", range, "#000000", "#cc0000", true);
+						}
+						count++;
 					}
 				}
+			} else {
+				lineBreak(true);
+				formatText("Available Network Ranges not shown, too many (" + subnet.getAvailableSubnets() + ")", "#a50000", true, true);
 			}
 		} else {
 			formatWithColors("Host Address", subnet.getNetwork(), "#005500", "#0000ff", true);

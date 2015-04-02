@@ -1,5 +1,7 @@
 package com.pbrane.mike.ipv4subnet;
 
+import android.util.Log;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,13 +20,14 @@ public class CalculateSubnet {
     private String min_host_addr;
     private String max_host_addr;
     private String network;
-    private int number_of_addresses; // addresses in given subnet
-    private int max_hosts;
-	private String osm; // original subnet mask
-	private String csm; // custom subnet mask (osm + network bits)
-	private int number_of_networks;
-	private int number_of_hosts;
-	private String[] ranges = new String[32]; // max number of ranges is 32
+    private int hosts_per_subnet; // addresses in given subnet
+    private int usable_hosts;
+	private int available_subnets;
+//	private String osm; // original subnet mask
+//	private String csm; // custom subnet mask (osm + network bits)
+//	private int number_of_networks;
+//	private int number_of_hosts;
+	private String[] ranges;// = new String[MainActivity.MAX_RANGES]; // max number of ranges is 32
 
     public void calculateSubnetCIDR(String ipAddr_mask)
     {
@@ -35,17 +38,19 @@ public class CalculateSubnet {
         binary_mask = maskBitsToBinary(network_bits);
 
         // calc ip range
-        number_of_addresses = calcMaxIPAddresses(); // number of addresses in subnet
-        max_hosts = calcMaxHosts(); // number of host IPs in network
+        hosts_per_subnet = calcHostsPerSubnet(); // number of addresses in subnet
+        usable_hosts = calcUsableHosts(); // number of host IPs in network
         network = bitwiseAnd(ipAddr, splitIntoDecimalOctets(binary_mask)); // network IP
 
         min_host_addr = minimumHostAddress(network); // first host IP
         broadcast = broadcast(ipAddr, splitIntoDecimalOctets(binary_mask)); // broadcast IP
         max_host_addr = maximumHostAddress(broadcast); // last host IP
-		calculateNetworkRanges();
+		available_subnets = calcAvailableSubnets();
+		ranges = calculateNetworkRanges();
     }
 
-	// subnetting steps       OSM
+	// subnetting steps ICND style
+	//                        OSM
 	// 1. ID the class A = 255.0.0.0 = 24 host bits
 	//           Class B = 255.255.0.0 = 16 host bits
 	//           Class C = 255.255.255.0 = 8 host bits
@@ -158,7 +163,7 @@ public class CalculateSubnet {
 //        return octets[0] + "." + octets[1] + "." + octets[2] + "." + octets[3];
 //    }
 
-    public int calcMaxIPAddresses()
+    public int calcHostsPerSubnet()
     {
 		if (host_bits < 2 ) {
 			return 1;
@@ -167,12 +172,12 @@ public class CalculateSubnet {
 		}
     }
 
-    public int calcMaxHosts()
+    public int calcUsableHosts()
     {
 		if (host_bits < 2 ) {
 			return 1;
 		} else {
-			return calcMaxIPAddresses() - 2;
+			return calcHostsPerSubnet() - 2;
 		}
     }
 
@@ -208,6 +213,7 @@ public class CalculateSubnet {
 	public int calcAvailableSubnets()
 	{
 		String ip = octetToBinary(ipAddr.split("[.]")[0]);
+		Log.i("calcAvailableSubnets", ip);
 		String[] octets = getDecimalMaskOctets().split("[.]");
 		long hostbits = 0;
 
@@ -225,62 +231,52 @@ public class CalculateSubnet {
 		return (int)Math.pow(2.0, (double)hostbits);
 	}
 
-	public String getNextNetwork(String base)
+	public String getNextNetwork(String base, int incremental_value)
 	{
-		String[] octets = base.split("[.]");
-
-		if (Integer.parseInt(octets[3]) < 256 && number_of_addresses <= 255) {
-			octets[3] = Integer.toString(Integer.parseInt(octets[3]) + number_of_addresses);
-		} else if (number_of_addresses > 255 && number_of_addresses < 512) {
-			octets[3] = Integer.toString(255);
-			octets[2] = Integer.toString(Integer.parseInt(octets[2]) + 1);
-		} else if (number_of_addresses > 511 && number_of_addresses < 1024) {
-			octets[3] = Integer.toString(255);
-			octets[2] = Integer.toString(255);
-			octets[1] = Integer.toString(Integer.parseInt(octets[1]) + 1);
+		String[] net = base.split("[:]"); // split the base network range at the colon
+		String[] octets = net[0].split("[.]"); // split the
+		if (octets.length < 4) {
+			Log.i("getNextNetwork", "octets.length is less than four!");
+			return "";
 		}
+		if (host_bits <= 8) { // class C
+			octets[3] = Integer.toString(Integer.parseInt(octets[3]) + incremental_value);
+		} else if (host_bits > 8 && host_bits <= 16) { // class B
+			octets[3] = Integer.toString(Integer.parseInt(octets[3]) + (incremental_value - 256));
+			octets[2] = Integer.toString(Integer.parseInt(octets[2] + 1));
+		} else if (host_bits > 16 && host_bits <= 24) { // class A
+			octets[3] = Integer.toString(Integer.parseInt(octets[3]) + (incremental_value - 256));
+			octets[2] = Integer.toString(Integer.parseInt(octets[2] + 1));
+			octets[1] = Integer.toString(Integer.parseInt(octets[1] + 1));
+		}
+
 		return octets[0] + "." + octets[1] + "." + octets[2] + "." + octets[3];
 	}
 
-//	public String getBaseNetwork()
-//	{
-////		String[] octets = ipAddr.split("[.]");
-////		return octets[0] + "." + octets[1] + "." + octets[2] + ".0";
-//		return network;
-//	}
-
-	public void calculateNetworkRanges()
+	public String getBaseNetwork(String base)
 	{
-//		String[] networks = new String[16];
-////		String base = getBaseNetwork();
-//
-//		networks[0] = network;
-//		for (int k = 1; k < 16; k += 2) {
-//			networks[k] = getNextNetwork(networks[k - 1]);
-//		}
-//		return networks;
-		int incremental_value = number_of_hosts;
-		String tmpOctet3 = "";
-		ranges[0] = network;
-		for (int k = 1; k < 32; k++) {
-			String[] octets = ranges[k-1].split("[.]");
-			if (host_bits == 8) { // class C
-				octets[3] = Integer.toString(Integer.parseInt(octets[3]) + incremental_value);
-				tmpOctet3 = Integer.toString(Integer.parseInt(octets[3])  - 1);
-			} else if (host_bits == 16) { // class B
-				octets[3] = Integer.toString(Integer.parseInt(octets[3]) + (incremental_value - 256));
-				octets[2] = Integer.toString(Integer.parseInt(octets[2] + 1));
-				tmpOctet3 = Integer.toString(Integer.parseInt(octets[3])  - 1);
-			} else if (incremental_value == 24) { // class A
-				octets[3] = Integer.toString(Integer.parseInt(octets[3]) + (incremental_value - 256));
-				octets[2] = Integer.toString(Integer.parseInt(octets[2] + 1));
-				octets[1] = Integer.toString(Integer.parseInt(octets[1] + 1));
-				tmpOctet3 = Integer.toString(Integer.parseInt(octets[3])  - 1);
-			}
-
-			ranges[k] = octets[0] + octets[1] + octets[2] + octets[3] + " - " +
-					octets[0] + octets[1] + octets[2] + tmpOctet3;
+		String[] octets = base.split("[.]");
+		if (octets.length < 4) {
+			Log.i("getBaseNetwork", "octets.length is less than four!");
+			return "";
 		}
+		return octets[0] + "." + octets[1] + "." + octets[2] + ".0";
+	}
+
+	public String[] calculateNetworkRanges()
+	{
+		int nets = available_subnets > MainActivity.MAX_RANGES ? MainActivity.MAX_RANGES : available_subnets;
+		String[] networks = new String[nets];
+		String base, top;
+
+		base = getBaseNetwork(network);
+		networks[0] = base + " - " + getNextNetwork(base, hosts_per_subnet - 1);
+		for (int k = 1; k < nets; k++) {
+			base = getNextNetwork(base, hosts_per_subnet);
+			top = getNextNetwork(base, hosts_per_subnet - 1);
+			networks[k] = base + " - " + top;
+		}
+		return networks;
 	}
 
     public String ipToHex(String ip)
@@ -446,14 +442,14 @@ public class CalculateSubnet {
         return network;
     }
 
-    public int getMaxHosts()
+    public int getUsableHosts()
     {
-        return max_hosts;
+        return usable_hosts;
     }
 
     public int getNumberOfAddresses()
     {
-        return number_of_addresses;
+        return hosts_per_subnet;
     }
 
 	public int getHostBits()
@@ -466,24 +462,29 @@ public class CalculateSubnet {
 		return ranges;
 	}
 
-	public int getNumberOfHosts()
+	public int getAvailableSubnets()
 	{
-		return number_of_hosts;
+		return available_subnets;
 	}
 
-	public int getNumberOfNetworks()
-	{
-		return number_of_networks;
-	}
-
-	public String getOSM()
-	{
-		return osm;
-	}
-
-	public String getCsm()
-	{
-		return csm;
-	}
+//	public int getNumberOfHosts()
+//	{
+//		return number_of_hosts;
+//	}
+//
+//	public int getNumberOfNetworks()
+//	{
+//		return number_of_networks;
+//	}
+//
+//	public String getOSM()
+//	{
+//		return osm;
+//	}
+//
+//	public String getCsm()
+//	{
+//		return csm;
+//	}
 
 }
