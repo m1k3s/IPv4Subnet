@@ -35,11 +35,11 @@
         android:id="@+id/scroller"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_alignEnd="@+id/calc_button"
         android:layout_below="@+id/editText"
         android:fillViewport="true"
-        >
+        android:layout_alignParentBottom="true">
+
         <TextView
             android:labelFor="@id/editText"
             android:layout_width="fill_parent"
@@ -47,6 +47,8 @@
             android:id="@+id/textView"
             android:freezesText="false"
             android:textAlignment="viewStart"
-            android:typeface="monospace"/>
+            android:typeface="monospace"
+            android:layout_alignParentStart="true"/>
     </ScrollView>
+
 </RelativeLayout>

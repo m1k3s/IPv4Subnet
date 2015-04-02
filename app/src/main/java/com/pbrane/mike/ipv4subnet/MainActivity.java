@@ -38,6 +38,13 @@ public class MainActivity extends Activity {
 			EditText editText = (EditText) findViewById(R.id.editText);
 			editText.setText(ipAddr);
 		}
+
+		// hide the softkeyboard when the textview is clicked
+		textView.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				HideSoftKeyboard();
+			}
+		});
     }
 
 	@Override
@@ -71,6 +78,12 @@ public class MainActivity extends Activity {
 		return super.dispatchKeyEvent(e);
 	}
 
+	public void HideSoftKeyboard()
+	{
+		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), 0);
+	}
+
 	public void processEntry()
 	{
 		EditText editText = (EditText) findViewById(R.id.editText);
@@ -87,7 +100,6 @@ public class MainActivity extends Activity {
 		editor.putString(getString(R.string.savedIP), ip);
 		editor.apply();
 	}
-
 
 	// 1. check for and validate CIDR notation
 	// 2. check for and validate Classful notation
@@ -133,9 +145,10 @@ public class MainActivity extends Activity {
 
 	protected void displayLogo()
 	{
-		String logoString = "<pre><font color=#000000><u><b>Michael</b></u></font>"
+		String logoString = "<pre><small><font color=#4169E1><b>IPv4</font><font color=#006400>Subnet\u00A0-\u00A0</b></font></pre>"
+				+ "<pre><font color=#000000><u><b>Michael</b></u></font>"
 				+ "<font color=#c50000><u>Sheppard</u></font>"
-				+ "<font color=#0000aa>\u00A0<b>2015</b></font></pre>\n";
+				+ "<font color=#4169E1>\u00A0-\u00A0<b>2015</b></font></pre>\n";
 
 		textView.append("\n");
 		textView.append("--------------------------\n");
@@ -156,16 +169,18 @@ public class MainActivity extends Activity {
     {
         textView.setText(""); // clear TextView
 
-        format("IPv4 Address", subnet.getIpAddr(), true);
+        format("Host Address", subnet.getIpAddr(), true);
+        format("Host Address (hex)", subnet.getIpAddrHex(), true);
+		format("Host Address (decimal)", subnet.getIpAddrDecimal(), true);
+		format("Host Bits", Integer.toString(subnet.getHostBits()), true);
 		format("Network Class", subnet.getNetworkClass(), true);
-        format("IPv4 Address (hex)", subnet.getIpAddrHex(), true);
-        format("Network Mask (bits)", subnet.getNetworkBits(), true);
+        format("Network Mask (bits)", Integer.toString(subnet.getNetworkBits()), true);
         format("Network Mask", subnet.getDecimalMaskOctets(), true);
         format("Binary Mask", subnet.getBinaryMaskOctets(), true);
         format("Cisco Wildcard", subnet.getWildcard(), true);
         lineBreak(true);
-        format("Max Usable IPs", Integer.toString(subnet.getMaxHosts()), true);
-        format("Addresses in Network", Integer.toString(subnet.getNumberOfAddresses()), true);
+        format("Usable IPs", Integer.toString(subnet.getMaxHosts()), true);
+        format("Total IPs", Integer.toString(subnet.getNumberOfAddresses()), true);
         lineBreak(true);
 		int max_hosts = subnet.calcMaxHosts();
 
@@ -178,42 +193,36 @@ public class MainActivity extends Activity {
 			// convenience variable
 			String max_host_IP = subnet.getMaxHostAddr();
 
-			if (max_hosts <= MAX_HOSTS_TO_DISPLAY) {
-				// display the first usable IP
-				formatWithColors("Host Address", subnet.getMinHostAddr(), "#005500", "#0000ff", true);
-				// calculate the next usable IP
-				String next = subnet.getMinHostAddr();
-				// the first bitwiseAnd last IPs are already accounted for
-				for (int ip = 0; ip < max_hosts - 2; ip++) {
-					next = subnet.getNextIPAddress(next);
-					if (next.equals(subnet.getIpAddr())) {
-						formatWithColors("Host Address", "<b>" + next + "</b>", "#005500", "#0000c5", true);
-					} else {
-						formatWithColors("Host Address", next, "#005500", "#0000ff", true);
-					}
-				}
-				// display the last usable IP
-				formatWithColors("Host Address", max_host_IP, "#005500", "#0000ff", true);
-			} else {
+//			if (max_hosts <= MAX_HOSTS_TO_DISPLAY) {
+//				// display the first usable IP
+//				formatWithColors("Host Address", subnet.getMinHostAddr(), "#005500", "#0000ff", true);
+//				// calculate the next usable IP
+//				String next = subnet.getMinHostAddr();
+//				// the first bitwiseAnd last IPs are already accounted for
+//				for (int ip = 0; ip < max_hosts - 2; ip++) {
+//					next = subnet.getNextIPAddress(next);
+//					if (next.equals(subnet.getIpAddr())) {
+//						formatWithColors("Host Address", "<b>" + next + "</b>", "#005500", "#0000c5", true);
+//					} else {
+//						formatWithColors("Host Address", next, "#005500", "#0000ff", true);
+//					}
+//				}
+//				// display the last usable IP
+//				formatWithColors("Host Address", max_host_IP, "#005500", "#0000ff", true);
+//			} else {
 				format("Network", subnet.getNetwork() + " - " + subnet.getBroadcast(), true);
 				format("Usable", subnet.getMinHostAddr() + " - " + subnet.getMaxHostAddr(), true);
-			}
+//			}
 
-			if (subnet.calcAvailableSubnets() <= 16) {
+			if (subnet.calcAvailableSubnets() <= 32) {
 				lineBreak(true);
-				int addrs = subnet.getNumberOfAddresses();
-				String[] ranges = subnet.calculateNetworkRanges();
+//				int addrs = subnet.getNumberOfAddresses();
+				String[] ranges = subnet.getRanges();
 				for (String range : ranges) {
-					String[] octets = range.split("[.]");
-					octets[3] = Integer.toString((Integer.parseInt(octets[3]) + addrs - 1));
-					String endRange = octets[0] + "." + octets[1] + "." + octets[2] + "." + octets[3];
-					if (Integer.parseInt(range.split("[.]")[3]) >= 255) {
-						break;
-					}
 					if (range.equals(subnet.getNetwork())) {
-						formatWithColors("Range", range + " - " + endRange, "#000000", "#00cc00", true);
+						formatWithColors("Network Range", range, "#000000", "#006400", true);
 					} else {
-						formatWithColors("Range", range + " - " + endRange, "#000000", "#cc0000", true);
+						formatWithColors("Network Range", range, "#000000", "#cc0000", true);
 					}
 				}
 			}
@@ -224,7 +233,6 @@ public class MainActivity extends Activity {
 		displayLogo();
 
         // close the keyboard
-        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(textView.getWindowToken(), 0);
+		HideSoftKeyboard();
     }
 }
