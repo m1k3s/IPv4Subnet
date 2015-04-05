@@ -20,7 +20,7 @@ public class CalculateSubnet {
     private String min_host_addr;
     private String max_host_addr;
     private String network;
-    private int hosts_per_subnet; // addresses in given subnet
+    private int hosts_per_subnet;
     private int usable_hosts;
 	private int available_subnets;
 	private String[] ranges;
@@ -41,9 +41,10 @@ public class CalculateSubnet {
         broadcast = broadcast(ipAddr, splitIntoDecimalOctets(binary_mask)); // broadcast IP
         max_host_addr = maximumHostAddress(); // last host IP
 		available_subnets = calcAvailableSubnets(); // available networks in this subnet
+		// calculate all subnet ranges if the number of subnets is less than MAX_RANGES
 		if (available_subnets <= MainActivity.MAX_RANGES) {
 			ranges = calculateNetworkRanges();
-		} else {
+		} else { // calculate just the host network ranges
 			ranges = calculateRangeOfHostNetwork();
 		}
     }
@@ -98,6 +99,10 @@ public class CalculateSubnet {
 			return "B";
 		} else if (isClassC(ip)) {
 			return "C";
+		} else if (isClassD(ip)) {
+			return "D";
+		} else if (isClassE(ip)) {
+			return "E";
 		} else {
 			return "unknown";
 		}
@@ -125,19 +130,67 @@ public class CalculateSubnet {
 		return broadcast(network, getNetworkClassMask(network));
 	}
 
+	//
+	// Private IP ranges:
+	// Class A: 10.0.0.0 - 10.255.255.255
+	// Class B: 172.16.0.0 - 172.31.255.255
+	// Class C: 192.168.0.0 - 192.168.255.255
+	//
+	public boolean isPrivateIP(String ip)
+	{
+		long ipDec = Long.parseLong(ipToDecimal(ip));
+		long ipLow = 0;
+		long ipHigh = 0;
+		if (isClassA(ip)) {
+			ipLow = Long.parseLong(ipToDecimal("10.0.0.0"));
+			ipHigh = Long.parseLong(ipToDecimal("10.255.255.255"));
+		} else if (isClassB(ip)) {
+			ipLow = Long.parseLong(ipToDecimal("172.16.0.0"));
+			ipHigh = Long.parseLong(ipToDecimal("172.31.255.255"));
+		} else if (isClassC(ip)) {
+			ipLow = Long.parseLong(ipToDecimal("192.168.0.0"));
+			ipHigh = Long.parseLong(ipToDecimal("192.168.255.255"));
+		}
+		return ipDec >= ipLow && ipDec <= ipHigh;
+	}
+
+	public boolean isLoopBackOrDiagIP(String ip)
+	{
+		long ipDec = Long.parseLong(ipToDecimal(ip));
+		long ipLow = Long.parseLong(ipToDecimal("127.0.0.0"));
+		long ipHigh = Long.parseLong(ipToDecimal("127.255.255.255"));
+		return ipDec >= ipLow && ipDec <= ipHigh;
+	}
+
+	// Class A 0.0.0.0 to 127.255.255.255, 127.0.0.0 to 127.255.255.255 cannot be used and is
+	// reserved for loopback and diagnostic functions
 	public boolean isClassA(String ip)
 	{
 		return octetToBinary(ip.split("[.]")[0]).startsWith("0");
 	}
 
+	// Class B 128.0.0.0 to 191.255.255.255
 	public boolean isClassB(String ip)
 	{
 		return octetToBinary(ip.split("[.]")[0]).startsWith("10");
 	}
 
+	// Class C 192.0.0.0 to 223.255.255.255
 	public boolean isClassC(String ip)
 	{
 		return octetToBinary(ip.split("[.]")[0]).startsWith("110");
+	}
+
+	// Class D is a multicast network 224.0 0 0 to 239.255.255.255
+	public boolean isClassD(String ip)
+	{
+		return octetToBinary(ip.split("[.]")[0]).startsWith("1110");
+	}
+
+	// class E is a reserved network 240.0.0.0 255.255.255.255
+	public boolean isClassE(String ip)
+	{
+		return octetToBinary(ip.split("[.]")[0]).startsWith("1111");
 	}
 
 	public int calcAvailableSubnets()
