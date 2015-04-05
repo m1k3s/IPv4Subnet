@@ -23,11 +23,7 @@ public class CalculateSubnet {
     private int hosts_per_subnet; // addresses in given subnet
     private int usable_hosts;
 	private int available_subnets;
-//	private String osm; // original subnet mask
-//	private String csm; // custom subnet mask (osm + network bits)
-//	private int number_of_networks;
-//	private int number_of_hosts;
-	private String[] ranges;// = new String[MainActivity.MAX_RANGES]; // max number of ranges is 32
+	private String[] ranges;
 
     public void calculateSubnetCIDR(String ipAddr_mask)
     {
@@ -35,77 +31,22 @@ public class CalculateSubnet {
         ipAddr = tmp[0];
         network_bits = Integer.parseInt(tmp[1]);
         host_bits = 32 - network_bits;
-        binary_mask = maskBitsToBinary(network_bits);
+        binary_mask = maskBitsToBinary(network_bits); // netmask as binary string
 
-        // calc ip range
-        hosts_per_subnet = calcHostsPerSubnet(); // number of addresses in subnet
-        usable_hosts = calcUsableHosts(); // number of host IPs in network
+        hosts_per_subnet = calcHostsPerSubnet(); // number of addresses (hosts) in subnet
+        usable_hosts = calcUsableHosts(); // number of usable host IPs in network
         network = bitwiseAnd(ipAddr, splitIntoDecimalOctets(binary_mask)); // network IP
 
-        min_host_addr = minimumHostAddress(network); // first host IP
+        min_host_addr = minimumHostAddress(); // first host IP
         broadcast = broadcast(ipAddr, splitIntoDecimalOctets(binary_mask)); // broadcast IP
-        max_host_addr = maximumHostAddress(broadcast); // last host IP
-		available_subnets = calcAvailableSubnets();
-		ranges = calculateNetworkRanges();
+        max_host_addr = maximumHostAddress(); // last host IP
+		available_subnets = calcAvailableSubnets(); // available networks in this subnet
+		if (available_subnets <= MainActivity.MAX_RANGES) {
+			ranges = calculateNetworkRanges();
+		} else {
+			ranges = calculateRangeOfHostNetwork();
+		}
     }
-
-	// subnetting steps ICND style
-	//                        OSM
-	// 1. ID the class A = 255.0.0.0 = 24 host bits
-	//           Class B = 255.255.0.0 = 16 host bits
-	//           Class C = 255.255.255.0 = 8 host bits
-	//
-	// 2.a) 2^xn >= # of networks, where xn = # of network bits
-	//   b) 2^xh - 2 >= # of hosts/network, where xh = # of host bits
-	//   c) x^n + x^h = # of available bits in octet
-	//
-	// 3. custom subnet mask (CSM) = OSM + x^n
-	//
-	// 4. use incremental value (IV) to determine the ranges of usable addresses
-	// where IV = 1, 2, 4, 8, 16, 32, 64, 128 / octet value of 255, 254, 252, 248, 240, 224, 192, 128
-
-//	public void calculateSubnet(String cidr)
-//	{
-//		String []tmp = cidr.split("/"); // split the IP and mask bits
-//		ipAddr = tmp[0];
-//		network_bits = Integer.parseInt(tmp[1]);
-//
-//		// nice stuff to know
-//		binary_mask = maskBitsToBinary(network_bits);
-////		network = bitwiseAnd(ipAddr, splitIntoDecimalOctets(binary_mask)); // network IP
-//		broadcast = broadcast(ipAddr, splitIntoDecimalOctets(binary_mask)); // broadcast IP
-////		min_host_addr = minimumHostAddress(network); // first host IP
-//		max_host_addr = maximumHostAddress(broadcast); // last host IP
-//
-//		// step one
-//		switch (getNetworkClass()) {
-//			case "A":
-//				host_bits = 24;
-//				osm = "255.0.0.0";
-//				break;
-//
-//			case "B":
-//				host_bits = 16;
-//				osm = "255.255.0.0";
-//				break;
-//
-//			case "C":
-//				host_bits = 8;
-//				osm = "255.255.255.0";
-//				break;
-//		}
-//		// step two
-//		number_of_networks = (int)Math.pow(2.0, network_bits);
-//		number_of_hosts = (int)Math.pow(2.0, host_bits);
-//
-//		// step three
-//		csm = bitwiseOr(osm, splitIntoDecimalOctets(binary_mask));
-//		network = bitwiseAnd(ipAddr, csm); // network IP
-//		min_host_addr = minimumHostAddress(network); // first host IP
-//
-//		// step four
-//		calculateNetworkRanges();
-//	}
 
     public boolean validateCIDR(String cidr)
     {
@@ -137,53 +78,20 @@ public class CalculateSubnet {
         return bitwiseInvert(splitIntoDecimalOctets(binary_mask));
     }
 
-    // calculate the next IP
-//    public String getNextIPAddress(String minIP)
-//    {
-//        String[] octets = minIP.split("[.]");
-//
-//		if (Integer.parseInt(octets[3]) < 255) {
-//			octets[3] = Integer.toString(Integer.parseInt(octets[3]) + 1);
-//		}
-//		if (Integer.parseInt(octets[3]) == 255) {
-//			if (Integer.parseInt(octets[2]) < 255) {
-//				octets[2] = Integer.toString(Integer.parseInt(octets[2]) + 1);
-//			}
-//		}
-//		if (Integer.parseInt(octets[2]) == 255) {
-//			if (Integer.parseInt(octets[1]) < 255) {
-//				octets[1] = Integer.toString(Integer.parseInt(octets[1]) + 1);
-//			}
-//		}
-//		if (Integer.parseInt(octets[1]) == 255) {
-//			if (Integer.parseInt(octets[0]) < 255) {
-//				octets[0] = Integer.toString(Integer.parseInt(octets[0]) + 1);
-//			}
-//		}
-//        return octets[0] + "." + octets[1] + "." + octets[2] + "." + octets[3];
-//    }
-
     public int calcHostsPerSubnet()
     {
-		if (host_bits < 2 ) {
-			return 1;
-		} else {
-			return (int)Math.pow(2, (double)host_bits);
-		}
+		int hosts = (int)Math.pow(2, (double)host_bits);
+		return hosts < 1 ? 1 : hosts;
     }
 
     public int calcUsableHosts()
     {
-		if (host_bits < 2 ) {
-			return 1;
-		} else {
-			return calcHostsPerSubnet() - 2;
-		}
+		int usable = calcHostsPerSubnet() - 2;
+		return usable < 1 ? 1 : usable;
     }
 
-	public String getNetworkClass()
+	public String getNetworkClass(String ip)
 	{
-		String ip = octetToBinary(ipAddr.split("[.]")[0]);
 		if (isClassA(ip)) {
 			return "A";
 		} else if (isClassB(ip)) {
@@ -195,46 +103,71 @@ public class CalculateSubnet {
 		}
 	}
 
+	public String getNetworkClassMask(String network)
+	{
+		switch (getNetworkClass(network)) {
+			case "A": // n = 8, h = 24 255.0.0.0
+				return "255.0.0.0";
+
+			case "B": // n = 16, h = 16 255.255.0.0
+				return "255.255.0.0";
+
+			case "C": // n = 24, h = 8 255.255.255.0
+				return "255.255.255.0";
+
+			default:
+				return "unknown";
+		}
+	}
+
+	public String getNetworkClassBroadcast(String network)
+	{
+		return broadcast(network, getNetworkClassMask(network));
+	}
+
 	public boolean isClassA(String ip)
 	{
-		return ip.split("[.]")[0].startsWith("0");
+		return octetToBinary(ip.split("[.]")[0]).startsWith("0");
 	}
 
 	public boolean isClassB(String ip)
 	{
-		return ip.split("[.]")[0].startsWith("10");
+		return octetToBinary(ip.split("[.]")[0]).startsWith("10");
 	}
 
 	public boolean isClassC(String ip)
 	{
-		return ip.split("[.]")[0].startsWith("110");
+		return octetToBinary(ip.split("[.]")[0]).startsWith("110");
 	}
 
 	public int calcAvailableSubnets()
 	{
-		String ip = octetToBinary(ipAddr.split("[.]")[0]);
-		Log.i("calcAvailableSubnets", ip);
 		String[] octets = getDecimalMaskOctets().split("[.]");
-		long hostbits = 0;
+		long hostbits = 0; // host bits of subnet mask
 
-		if (isClassA(ip)) { // n = 8, h = 24 255.0.0.0
-			hostbits = Long.bitCount(Long.parseLong(octets[1]));
-			hostbits += Long.bitCount(Long.parseLong(octets[2]));
-			hostbits += Long.bitCount(Long.parseLong(octets[3]));
-		} else if (isClassB(ip)) { // n = 16, h = 16 255.255.0.0
-			hostbits = Long.bitCount(Long.parseLong(octets[2]));
-			hostbits += Long.bitCount(Long.parseLong(octets[3]));
-		} else if (isClassC(ip)) { // n = 24, h = 8 255.255.255.0
-			hostbits = Long.bitCount(Long.parseLong(octets[3]));
+		switch (getNetworkClass(ipAddr)) {
+			case "A": // n = 8, h = 24 255.0.0.0
+				hostbits = Long.bitCount(Long.parseLong(octets[1]));
+				hostbits += Long.bitCount(Long.parseLong(octets[2]));
+				hostbits += Long.bitCount(Long.parseLong(octets[3]));
+				break;
+
+			case "B": // n = 16, h = 16 255.255.0.0
+				hostbits = Long.bitCount(Long.parseLong(octets[2]));
+				hostbits += Long.bitCount(Long.parseLong(octets[3]));
+				break;
+
+			case "C": // n = 24, h = 8 255.255.255.0
+				hostbits = Long.bitCount(Long.parseLong(octets[3]));
+				break;
 		}
-
 		return (int)Math.pow(2.0, (double)hostbits);
 	}
 
 	public String getNextNetwork(String base, int incremental_value)
 	{
 		String[] net = base.split("[:]"); // split the base network range at the colon
-		String[] octets = net[0].split("[.]"); // split the
+		String[] octets = net[0].split("[.]"); // split the ip
 		if (octets.length < 4) {
 			Log.i("getNextNetwork", "octets.length is less than four!");
 			return "";
@@ -242,14 +175,15 @@ public class CalculateSubnet {
 		if (host_bits <= 8) { // class C
 			octets[3] = Integer.toString(Integer.parseInt(octets[3]) + incremental_value);
 		} else if (host_bits > 8 && host_bits <= 16) { // class B
-			octets[3] = Integer.toString(Integer.parseInt(octets[3]) + (incremental_value - 256));
-			octets[2] = Integer.toString(Integer.parseInt(octets[2] + 1));
+			octets[3] = Integer.toString((incremental_value == hosts_per_subnet - 1) ? 255 : 0);
+			octets[2] = Integer.toString(Integer.parseInt(octets[2]) + (incremental_value / 256));
 		} else if (host_bits > 16 && host_bits <= 24) { // class A
-			octets[3] = Integer.toString(Integer.parseInt(octets[3]) + (incremental_value - 256));
-			octets[2] = Integer.toString(Integer.parseInt(octets[2] + 1));
-			octets[1] = Integer.toString(Integer.parseInt(octets[1] + 1));
+			int octet3 = net.length > 1 ? Integer.parseInt(net[1].split("[.]")[3]) : Integer.parseInt(octets[3]);
+			int octet2 = net.length > 1 ? Integer.parseInt(net[1].split("[.]")[2]) : Integer.parseInt(octets[2]);
+			octets[3] = Integer.toString(octet3 == 255 ? 0 : 255);
+			octets[2] = Integer.toString(octet2 == 255 ? 0 : 255);
+			octets[1] = Integer.toString(Integer.parseInt(octets[1]) + (incremental_value / 256));
 		}
-
 		return octets[0] + "." + octets[1] + "." + octets[2] + "." + octets[3];
 	}
 
@@ -260,7 +194,23 @@ public class CalculateSubnet {
 			Log.i("getBaseNetwork", "octets.length is less than four!");
 			return "";
 		}
-		return octets[0] + "." + octets[1] + "." + octets[2] + ".0";
+		switch (getNetworkClass(base)) {
+			case "A":
+				octets[3] = "0";
+				octets[2] = "0";
+				octets[1] = "0";
+				break;
+
+			case "B":
+				octets[3] = "0";
+				octets[2] = "0";
+				break;
+
+			case "C":
+				octets[3] = "0";
+				break;
+		}
+		return octets[0] + "." + octets[1] + "." + octets[2] + "." + octets[3];
 	}
 
 	public String[] calculateNetworkRanges()
@@ -270,24 +220,65 @@ public class CalculateSubnet {
 		String base, top;
 
 		base = getBaseNetwork(network);
-		networks[0] = base + " - " + getNextNetwork(base, hosts_per_subnet - 1);
-		for (int k = 1; k < nets; k++) {
-			base = getNextNetwork(base, hosts_per_subnet);
-			top = getNextNetwork(base, hosts_per_subnet - 1);
-			networks[k] = base + " - " + top;
+		if (!base.isEmpty()) {
+			networks[0] = base + " - " + getNextNetwork(base, hosts_per_subnet - 1);
+			for (int k = 1; k < nets; k++) {
+				base = getNextNetwork(base, hosts_per_subnet);
+				top = getNextNetwork(base, hosts_per_subnet - 1);
+				networks[k] = base + " - " + top;
+			}
 		}
 		return networks;
+	}
+
+	public String[] calculateRangeOfHostNetwork()
+	{
+		int nets = 256 / hosts_per_subnet;
+		String[] networks = new String[nets];
+
+		String base = network.split("[.]")[0] + "." + network.split("[.]")[1] + "." + network.split("[.]")[2] + ".0";
+		if (!base.isEmpty()) {
+			networks[0] = base + " - " + getNextNetwork(base, hosts_per_subnet - 1);
+			for (int k = 1; k < nets; k++) {
+				base = getNextNetwork(base, hosts_per_subnet);
+				String top = getNextNetwork(base, hosts_per_subnet - 1);
+				networks[k] = base + " - " + top;
+			}
+		}
+		return networks;
+	}
+
+	public long calcHostsForNetworkClass(String network)
+	{
+		long result;
+		switch (getNetworkClass(network)) {
+			case "A":
+				result = (long)Math.pow(2.0, 24.0);
+				break;
+
+			case "B":
+				result = (long)Math.pow(2.0, 16.0);
+				break;
+
+			case "C":
+				result = (long)Math.pow(2.0, 8.0);
+				break;
+
+			default:
+				result = 0;
+				break;
+		}
+		return result;
 	}
 
     public String ipToHex(String ip)
     {
         String[] octets = ip.split("[.]");
+		String hex = "";
 
-        String hex = Integer.toHexString(Integer.parseInt(octets[0])) +
-                Integer.toHexString(Integer.parseInt(octets[1])) +
-                Integer.toHexString(Integer.parseInt(octets[2])) +
-                Integer.toHexString(Integer.parseInt(octets[3]));
-
+		for (int k = 0; k < 4; k++) {
+			hex += octetToHex(octets[k]);
+		}
         return hex.toUpperCase();
     }
 
@@ -302,6 +293,20 @@ public class CalculateSubnet {
 		}
 
 		return Long.toString(result);
+	}
+
+	public String ipToBinary(String ip, boolean split)
+	{
+		String[] octets = ip.split("[.]");
+		String binary = "";
+
+		for (int k = 0; k < 4; k++) {
+			binary += octetToBinary(octets[k]);
+			if (split && k != 3) {
+				binary += ".";
+			}
+		}
+		return binary;
 	}
 
     public String maskBitsToBinary(int bits)
@@ -321,17 +326,18 @@ public class CalculateSubnet {
                 + Integer.toString(Integer.parseInt(b.substring(24, 32), 2));
     }
 
-    public String splitIntoBinaryOctets(String b)
-    {
-        return Integer.toBinaryString(Integer.parseInt(b.substring(0, 8), 2)) + "."
-                + Integer.toBinaryString(Integer.parseInt(b.substring(8, 16), 2)) + "."
-                + Integer.toBinaryString(Integer.parseInt(b.substring(16, 24), 2)) + "."
-                + Integer.toBinaryString(Integer.parseInt(b.substring(24, 32), 2));
-    }
-
 	public String octetToBinary(String octet)
 	{
-		return Integer.toBinaryString(Integer.parseInt(octet));
+		String padding = "00000000"; // 8 bits in an octet
+		String result = padding + Integer.toBinaryString(Integer.parseInt(octet));
+		return result.substring(result.length() - padding.length(), result.length());
+	}
+
+	public String octetToHex(String octet)
+	{
+		String padding = "00"; // 2 hex characters in an octet
+		String result = padding + Integer.toHexString(Integer.parseInt(octet));
+		return result.substring(result.length() - padding.length(), result.length());
 	}
 
 	public String broadcast(String network, String netmask)
@@ -341,42 +347,42 @@ public class CalculateSubnet {
 	}
 
 	// The network plus one
-    public String minimumHostAddress(String subnet_addr)
+    public String minimumHostAddress()
     {
-        String[] octets = subnet_addr.split("[.]");
+        String[] octets = network.split("[.]");
 
         octets[3] = Integer.toString(Integer.parseInt(octets[3]) + 1);
         return octets[0] + "." + octets[1] + "." + octets[2] + "." + octets[3];
     }
 
 	// the broadcast minus one
-    public String maximumHostAddress(String broadcast_ip)
+    public String maximumHostAddress()
     {
-        String[] octets = broadcast_ip.split("[.]");
+        String[] octets = broadcast.split("[.]");
 
         octets[3] = Integer.toString(Integer.parseInt(octets[3]) - 1);
         return octets[0] + "." + octets[1] + "." + octets[2] + "." + octets[3];
     }
 
     public String bitwiseAnd(String ip1, String ip2) {
-        String[] input1 = ip1.split("[.]");
-        String[] input2 = ip2.split("[.]");
+        String[] inputA = ip1.split("[.]");
+        String[] inputB = ip2.split("[.]");
         String[] output = new String[4];
 
         for (int i = 0; i < 4; i++) {
-            output[i] = Integer.toString(Integer.parseInt(input1[i]) & Integer.parseInt(input2[i]) );
+            output[i] = Integer.toString(Integer.parseInt(inputA[i]) & Integer.parseInt(inputB[i]) );
         }
         return output[0] + "." + output[1] + "." + output[2] + "." + output[3];
     }
 
 	public String bitwiseOr(String ip1, String ip2)
 	{
-		String[] input1 = ip1.split("[.]");
-		String[] input2 = ip2.split("[.]");
+		String[] inputA = ip1.split("[.]");
+		String[] inputB = ip2.split("[.]");
 		String[] output = new String[4];
 
 		for (int i = 0; i < 4; i++) {
-			output[i] = Integer.toString(Integer.parseInt(input1[i]) | Integer.parseInt(input2[i]) );
+			output[i] = Integer.toString(Integer.parseInt(inputA[i]) | Integer.parseInt(inputB[i]) );
 		}
 		return output[0] + "." + output[1] + "." + output[2] + "." + output[3];
 	}
@@ -410,11 +416,6 @@ public class CalculateSubnet {
     public int getNetworkBits()
     {
         return network_bits;
-    }
-
-    public String getBinaryMaskOctets()
-    {
-        return splitIntoBinaryOctets(binary_mask);
     }
 
     public String getDecimalMaskOctets()
@@ -466,25 +467,5 @@ public class CalculateSubnet {
 	{
 		return available_subnets;
 	}
-
-//	public int getNumberOfHosts()
-//	{
-//		return number_of_hosts;
-//	}
-//
-//	public int getNumberOfNetworks()
-//	{
-//		return number_of_networks;
-//	}
-//
-//	public String getOSM()
-//	{
-//		return osm;
-//	}
-//
-//	public String getCsm()
-//	{
-//		return csm;
-//	}
 
 }
