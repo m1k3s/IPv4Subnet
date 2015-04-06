@@ -5,6 +5,7 @@ import android.util.Log;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 public class CalculateSubnet {
 
     private static final String IP_ADDRESS = "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])";
@@ -20,8 +21,8 @@ public class CalculateSubnet {
     private String min_host_addr;
     private String max_host_addr;
     private String network;
-    private int hosts_per_subnet; // addresses in given subnet
-    private int usable_hosts;
+    private long hosts_per_subnet;
+    private long usable_hosts;
 	private int available_subnets;
 	private String[] ranges;
 
@@ -41,9 +42,10 @@ public class CalculateSubnet {
         broadcast = broadcast(ipAddr, splitIntoDecimalOctets(binary_mask)); // broadcast IP
         max_host_addr = maximumHostAddress(); // last host IP
 		available_subnets = calcAvailableSubnets(); // available networks in this subnet
+		// calculate all subnet ranges if the number of subnets is less than MAX_RANGES
 		if (available_subnets <= MainActivity.MAX_RANGES) {
 			ranges = calculateNetworkRanges();
-		} else {
+		} else { // calculate just the host network ranges
 			ranges = calculateRangeOfHostNetwork();
 		}
     }
@@ -78,16 +80,25 @@ public class CalculateSubnet {
         return bitwiseInvert(splitIntoDecimalOctets(binary_mask));
     }
 
-    public int calcHostsPerSubnet()
+    public long calcHostsPerSubnet()
     {
-		int hosts = (int)Math.pow(2, (double)host_bits);
-		return hosts < 1 ? 1 : hosts;
+		long hosts = (long)Math.pow(2, (double)host_bits);
+		if (hosts < 0) {
+			return 1;
+		}
+		return hosts;
     }
 
-    public int calcUsableHosts()
+    public long calcUsableHosts()
     {
-		int usable = calcHostsPerSubnet() - 2;
-		return usable < 1 ? 1 : usable;
+		long total = calcHostsPerSubnet();
+		long usable = total - 2;
+		if (total == 1) {
+			return 1;
+		} else if (usable < 0) {
+			return 0;
+		}
+		return usable;
     }
 
 	public String getNetworkClass(String ip)
@@ -98,6 +109,10 @@ public class CalculateSubnet {
 			return "B";
 		} else if (isClassC(ip)) {
 			return "C";
+		} else if (isClassD(ip)) {
+			return "D";
+		} else if (isClassE(ip)) {
+			return "E";
 		} else {
 			return "unknown";
 		}
@@ -125,21 +140,70 @@ public class CalculateSubnet {
 		return broadcast(network, getNetworkClassMask(network));
 	}
 
+	//
+	// Private IP ranges:
+	// Class A: 10.0.0.0 - 10.255.255.255
+	// Class B: 172.16.0.0 - 172.31.255.255
+	// Class C: 192.168.0.0 - 192.168.255.255
+	//
+	public boolean isPrivateIP(String ip)
+	{
+		long ipDec = Long.parseLong(ipToDecimal(ip));
+		long ipLow = 0;
+		long ipHigh = 0;
+		if (isClassA(ip)) {
+			ipLow = Long.parseLong(ipToDecimal("10.0.0.0"));
+			ipHigh = Long.parseLong(ipToDecimal("10.255.255.255"));
+		} else if (isClassB(ip)) {
+			ipLow = Long.parseLong(ipToDecimal("172.16.0.0"));
+			ipHigh = Long.parseLong(ipToDecimal("172.31.255.255"));
+		} else if (isClassC(ip)) {
+			ipLow = Long.parseLong(ipToDecimal("192.168.0.0"));
+			ipHigh = Long.parseLong(ipToDecimal("192.168.255.255"));
+		}
+		return ipDec >= ipLow && ipDec <= ipHigh;
+	}
+
+	public boolean isLoopBackOrDiagIP(String ip)
+	{
+		long ipDec = Long.parseLong(ipToDecimal(ip));
+		long ipLow = Long.parseLong(ipToDecimal("127.0.0.0"));
+		long ipHigh = Long.parseLong(ipToDecimal("127.255.255.255"));
+		return ipDec >= ipLow && ipDec <= ipHigh;
+	}
+
+	// Class A 0.0.0.0 to 127.255.255.255, 127.0.0.0 to 127.255.255.255 cannot be used and is
+	// reserved for loopback and diagnostic functions
 	public boolean isClassA(String ip)
 	{
 		return octetToBinary(ip.split("[.]")[0]).startsWith("0");
 	}
 
+	// Class B 128.0.0.0 to 191.255.255.255, 172.16.0.0 - 172.31.255.255 are private
 	public boolean isClassB(String ip)
 	{
 		return octetToBinary(ip.split("[.]")[0]).startsWith("10");
 	}
 
+	// Class C 192.0.0.0 to 223.255.255.255, 192.168.0.0 - 192.168.255.255 are private
 	public boolean isClassC(String ip)
 	{
 		return octetToBinary(ip.split("[.]")[0]).startsWith("110");
 	}
 
+	// Class D is a multicast network 224.0 0 0 to 239.255.255.255
+	public boolean isClassD(String ip)
+	{
+		return octetToBinary(ip.split("[.]")[0]).startsWith("1110");
+	}
+
+	// class E is a reserved network 240.0.0.0 255.255.255.255
+	public boolean isClassE(String ip)
+	{
+		return octetToBinary(ip.split("[.]")[0]).startsWith("1111");
+	}
+
+	// Calculates subnets from a valid mask. _Not_ CIDR or VLSM
 	public int calcAvailableSubnets()
 	{
 		String[] octets = getDecimalMaskOctets().split("[.]");
@@ -219,13 +283,19 @@ public class CalculateSubnet {
 		String[] networks = new String[nets];
 		String base, top;
 
-		base = getBaseNetwork(network);
-		if (!base.isEmpty()) {
-			networks[0] = base + " - " + getNextNetwork(base, hosts_per_subnet - 1);
-			for (int k = 1; k < nets; k++) {
-				base = getNextNetwork(base, hosts_per_subnet);
-				top = getNextNetwork(base, hosts_per_subnet - 1);
-				networks[k] = base + " - " + top;
+		if (available_subnets == 1) {
+			base = getBaseNetwork(network);
+			top = getBroadcast();
+			networks[0] = base + " - " + top;
+		} else {
+			base = getBaseNetwork(network);
+			if (!base.isEmpty()) {
+				networks[0] = base + " - " + getNextNetwork(base, (int) hosts_per_subnet - 1);
+				for (int k = 1; k < nets; k++) {
+					base = getNextNetwork(base, (int) hosts_per_subnet);
+					top = getNextNetwork(base, (int) hosts_per_subnet - 1);
+					networks[k] = base + " - " + top;
+				}
 			}
 		}
 		return networks;
@@ -233,15 +303,15 @@ public class CalculateSubnet {
 
 	public String[] calculateRangeOfHostNetwork()
 	{
-		int nets = 256 / hosts_per_subnet;
+		int nets = (int)(256 / hosts_per_subnet);
 		String[] networks = new String[nets];
 
 		String base = network.split("[.]")[0] + "." + network.split("[.]")[1] + "." + network.split("[.]")[2] + ".0";
 		if (!base.isEmpty()) {
-			networks[0] = base + " - " + getNextNetwork(base, hosts_per_subnet - 1);
+			networks[0] = base + " - " + getNextNetwork(base, (int)hosts_per_subnet - 1);
 			for (int k = 1; k < nets; k++) {
-				base = getNextNetwork(base, hosts_per_subnet);
-				String top = getNextNetwork(base, hosts_per_subnet - 1);
+				base = getNextNetwork(base, (int)hosts_per_subnet);
+				String top = getNextNetwork(base, (int)hosts_per_subnet - 1);
 				networks[k] = base + " - " + top;
 			}
 		}
@@ -443,12 +513,12 @@ public class CalculateSubnet {
         return network;
     }
 
-    public int getUsableHosts()
+    public long getUsableHosts()
     {
         return usable_hosts;
     }
 
-    public int getNumberOfAddresses()
+    public long getNumberOfAddresses()
     {
         return hosts_per_subnet;
     }
