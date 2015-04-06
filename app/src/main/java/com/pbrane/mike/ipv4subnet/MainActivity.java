@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import java.text.NumberFormat;
 
+// todo: see the CalculateSubnet class todo list
 
 public class MainActivity extends Activity {
 
@@ -161,7 +162,6 @@ public class MainActivity extends Activity {
 	{
 		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), 0);
-//		imm.toggleSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
 	}
 
 	public void processEntry()
@@ -256,10 +256,58 @@ public class MainActivity extends Activity {
 		textView.append(Html.fromHtml(str));
 	}
 
+	public String formatNumber(long number)
+	{
+		String result = "";
+		if (number < 10000000) {
+			result = String.format("%d", number);
+		} else if (number >= 10000000 && number < 100000000) {
+			result = String.format("%.4fM", number / 1000000.0);
+		} else if (number >= 100000000) {
+			result = String.format("%.4fG", number / 1000000000.0);
+		}
+		return result;
+	}
+
+	//
+	// Private IP ranges:
+	// Class A: 10.0.0.0 - 10.255.255.255
+	// Class B: 172.16.0.0 - 172.31.255.255
+	// Class C: 192.168.0.0 - 192.168.255.255
+	//
+	public String getPrivateIpRangesString(String ip)
+	{
+		long ipDec = Long.parseLong(subnet.ipToDecimal(ip));
+		long ipLow, ipHigh;
+		String comment = "";
+
+		if (subnet.isClassA(ip)) {
+			ipLow = Long.parseLong(subnet.ipToDecimal("10.0.0.0"));
+			ipHigh = Long.parseLong(subnet.ipToDecimal("10.255.255.255"));
+			if (ipDec >= ipLow && ipDec <= ipHigh) {
+				comment = "Range: 10.0.0.0 to 10.255.255.255";
+			}
+		} else if (subnet.isClassB(ip)) {
+			ipLow = Long.parseLong(subnet.ipToDecimal("172.16.0.0"));
+			ipHigh = Long.parseLong(subnet.ipToDecimal("172.31.255.255"));
+			if (ipDec >= ipLow && ipDec <= ipHigh) {
+				comment = "Range: 172.16.0.0 to 172.31.255.255";
+			}
+		} else if (subnet.isClassC(ip)) {
+			ipLow = Long.parseLong(subnet.ipToDecimal("192.168.0.0"));
+			ipHigh = Long.parseLong(subnet.ipToDecimal("192.168.255.255"));
+			if (ipDec >= ipLow && ipDec <= ipHigh) {
+				comment = "Range: 192.168.0.0 to 192.168.255.255";
+			}
+		}
+		return comment;
+	}
+
     public void displayResults()
     {
         textView.setText(""); // clear TextView
 
+		// [Classful]
 		textView.append(Html.fromHtml("<font color=#00BFFF><b>[Classful]</b></font><br>"));
 		String hostIP = subnet.getIpAddr();
 		textView.append(String.format("%-25s%s\n", "Host Address:", hostIP));
@@ -276,6 +324,7 @@ public class MainActivity extends Activity {
 		textView.append(String.format("%-25s%s\n", "Number of hosts:", nHosts));
 		textView.append("\n");
 
+		// [CIDR]
 		textView.append(Html.fromHtml("<font color=#00BFFF><b>[CIDR]</b></font><br>"));
 		textView.append(String.format("%-25s%s\n", "Host Address:", hostIP));
 		textView.append(String.format("%-25s%s\n", "Host Address (decimal):", subnet.getIpAddrDecimal()));
@@ -288,14 +337,23 @@ public class MainActivity extends Activity {
 		textView.append(String.format("%-25s%s\n", "NetMask (hex):", subnet.ipToHex(mask)));
 		textView.append(String.format("%-25s%s\n", "Broadcast:", subnet.getBroadcast()));
 		textView.append(String.format("%-25s%s\n", "Cisco Wildcard:", subnet.getWildcard()));
-		String utips = Integer.toString(subnet.getUsableHosts()) + " / " + Integer.toString(subnet.getNumberOfAddresses());
+		long usable = subnet.getUsableHosts();
+		long total = subnet.getNumberOfAddresses();
+		String utips = formatNumber(usable) + " / " + formatNumber(total);
 		textView.append(String.format("%-25s%s\n", "Usable/Total IPs:", utips));
 		textView.append(String.format("%-9s%-15s - %-15s\n", "Network:", subnet.getNetwork(),subnet.getBroadcast()));
-		textView.append(String.format("%-9s%-15s - %-15s\n", "Usable:", subnet.getMinHostAddr(), subnet.getMaxHostAddr()));
+		if (usable == 0) {
+			textView.append(Html.fromHtml("<font color=#FF0000><b>Usable:\u00A0\u00A00</b></font><br\n"));
+		} else if (usable == 1) {
+			textView.append(String.format("%-9s%-15s\n", "Usable:", 1));
+		} else {
+			textView.append(String.format("%-9s%-15s - %-15s\n", "Usable:", subnet.getMinHostAddr(), subnet.getMaxHostAddr()));
+		}
 		String nSubnets = NumberFormat.getNumberInstance().format(subnet.getAvailableSubnets());
 		textView.append(String.format("%-25s%s\n", "Available Subnets:", nSubnets));
 		textView.append("\n");
 
+		// [Classfull Bitmaps]
 		textView.append(Html.fromHtml("<font color=#00BFFF><b>[Classful Bitmaps]</b></font><br>"));
 		textView.append(String.format("%-10s%s\n", "Host IP:", subnet.ipToBinary(hostIP, true)));
 		textView.append(String.format("%-10s%s\n", "Net IP:", subnet.ipToBinary(baseNetwork, true)));
@@ -303,6 +361,7 @@ public class MainActivity extends Activity {
 		textView.append(String.format("%-10s%s\n", "Brdcast:", subnet.ipToBinary(subnet.getNetworkClassBroadcast(baseNetwork), true)));
 		textView.append("\n");
 
+		// [CIDR Bitmaps]
 		textView.append(Html.fromHtml("<font color=#00BFFF><b>[CIDR Bitmaps]</b></font><br>"));
 		textView.append(String.format("%-10s%s\n", "Host IP:", subnet.ipToBinary(hostIP, true)));
 		textView.append(String.format("%-10s%s\n", "Net IP:", subnet.ipToBinary(baseNetwork, true)));
@@ -311,33 +370,48 @@ public class MainActivity extends Activity {
 		textView.append(String.format("%-10s%s\n", "Wildcard:", subnet.ipToBinary(subnet.getWildcard(), true)));
 		textView.append("\n");
 
+		// [Networks]
+
 		textView.append(Html.fromHtml("<font color=#00BFFF><b>[Networks]</b></font><br>"));
-		String[] ranges = subnet.getRanges();
-		int count = 1;
-		for (String range : ranges) {
-			String low = range.split(" - ")[0];
-			String high = range.split(" - ")[1];
-			if (low.equals(subnet.getNetwork())) {
-				textView.append(String.format("%3d. %-15s - %-15s", count, low, high));
-				textView.append(" <==\n");
-			} else {
-				textView.append(String.format("%3d. %-15s - %-15s\n", count, low, high));
+		if (usable == 1) { // only one host
+			textView.append(String.format("%3d. %-15s -\n", 1, hostIP));
+		} else if (usable > 1) { // multiple subnets
+			String[] ranges = subnet.getRanges();
+			int count = 1;
+			for (String range : ranges) {
+				String low = range.split(" - ")[0];
+				String high = range.split(" - ")[1];
+				if (low.equals(subnet.getNetwork())) {
+					textView.append(String.format("%3d. %-15s - %-15s", count, low, high));
+					textView.append(Html.fromHtml("<font color=#00ff00><b>\u00A0&lt==</b></font><br>\n"));
+				} else {
+					textView.append(String.format("%3d. %-15s - %-15s\n", count, low, high));
+				}
+				count++;
 			}
-			count++;
+		} else { // all addresses are unusable, e.g. /31
+			textView.append("\n");
 		}
-		// check for loopback or diag IP first, then private IP
+		// [Notes]
+		textView.append("\n");
+		textView.append(Html.fromHtml("<font color=#00BFFF><b>[Notes]</b></font><br>"));
+		// check for unusable address, loopback or diag IP, then private IP
+		if (usable == 0) {
+			textView.append("\n");
+			String noUsableIPsComment = "<font color=#FFD700>There are no usable hosts in this subnet.</font><br>";
+			textView.append(Html.fromHtml(noUsableIPsComment));
+		}
 		if (subnet.isLoopBackOrDiagIP(hostIP)) {
 			textView.append("\n");
-			textView.append(Html.fromHtml("<font color=#00BFFF><b>[Note]</b></font><br>"));
-			String loopIPComment = "<font color=#FFFFE0>This host IP address is in the range of IPs"
+			String loopIPComment = "<font color=#FFD700>This host IP address is in the range of IPs"
 					+ " used for loopback and diagnostic purposes.</font><br>";
 			textView.append(Html.fromHtml(loopIPComment));
-		} else if (subnet.isPrivateIP(hostIP)) {
+		}
+		if (subnet.isPrivateIP(hostIP)) {
 			textView.append("\n");
-			textView.append(Html.fromHtml("<font color=#00BFFF><b>[Note]</b></font><br>"));
-			String privateIPComment = "<font color=#FFFFE0>This host IP address is in a private"
+			String privateIPComment = "<font color=#FFD700>This host IP address is in a private"
 			+ " IP range and cannot be routed on the public network. Routers on the Internet should"
-			+ " be configured to discard these IPs.</font><br>";
+			+ " be configured to discard these IPs.<br>" + getPrivateIpRangesString(hostIP) + "</font><br>";
 			textView.append(Html.fromHtml(privateIPComment));
 		}
 		displayLogo();
