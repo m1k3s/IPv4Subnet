@@ -1,4 +1,4 @@
-package com.pbrane.mike.ipv4subnet;
+package com.pbrane.mike.ipvxsubnet;
 
 import android.app.Activity;
 import android.content.Context;
@@ -34,6 +34,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
 		// Setup the textview widget
         textView = (TextView) findViewById(R.id.textView);
 		textView.setTypeface(Typeface.MONOSPACE);
@@ -85,7 +86,7 @@ public class MainActivity extends Activity {
 			validateAndCalculateSubnet(ipAddr);
 		} else { // get the last IP/mask used and insert in editText
 			SharedPreferences sharedPref = this.getPreferences(MODE_PRIVATE);
-			String ipAddr = sharedPref.getString(getString(R.string.savedIP), "");
+			String ipAddr = sharedPref.getString(getString(R.string.savedIPv4), "");
 			editText.setText(ipAddr);
 		}
 
@@ -146,7 +147,7 @@ public class MainActivity extends Activity {
 		validateAndCalculateSubnet(ipAddr);
 	}
 
-	// use the enter key to start the process
+	// use the enter key to start the subnetting process
 	@Override
 	public boolean dispatchKeyEvent(@NonNull KeyEvent e)
 	{
@@ -175,7 +176,7 @@ public class MainActivity extends Activity {
 	{
 		SharedPreferences sharedPrefs = this.getPreferences(MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPrefs.edit();
-		editor.putString(getString(R.string.savedIP), ip);
+		editor.putString(getString(R.string.savedIPv4), ip);
 		editor.apply();
 	}
 

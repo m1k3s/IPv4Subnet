@@ -1,4 +1,4 @@
-package com.pbrane.mike.ipv4subnet;
+package com.pbrane.mike.ipvxsubnet;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
