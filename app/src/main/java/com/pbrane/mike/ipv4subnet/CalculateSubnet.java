@@ -5,21 +5,6 @@ import android.util.Log;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// todo:
-//  learn and inmplement IPv6 subnetting
-//
-// filtered source addresses
-// 0/8                 ! broadcast
-// 10/8                ! RFC 1918 private
-// 127/8               ! loopback
-// 169.254.0/16        ! link local
-// 172.16.0.0/12       ! RFC 1918 private
-// 192.0.2.0/24        ! TEST-NET
-// 192.168.0/16        ! RFC 1918 private
-// 224.0.0.0/4         ! class D multicast
-// 240.0.0.0/5         ! class E reserved
-// 248.0.0.0/5         ! reserved
-// 255.255.255.255/32  ! broadcast
 
 public class CalculateSubnet {
 
@@ -94,10 +79,6 @@ public class CalculateSubnet {
     {
         return bitwiseInvert(splitIntoDecimalOctets(binary_mask));
     }
-
-//	public static boolean isInRange(long x, long lower, long upper) {
-//		return lower <= x && x <= upper;
-//	}
 
     public long calcHostsPerSubnet()
     {
@@ -204,7 +185,7 @@ public class CalculateSubnet {
 		return octetToBinary(ip.split("[.]")[0]).startsWith("10");
 	}
 
-	// Class C 192.0.0.0 to 223.255.255.255
+	// Class C 192.0.0.0 to 223.255.255.255, 192.168.0.0 - 192.168.255.255 are private
 	public boolean isClassC(String ip)
 	{
 		return octetToBinary(ip.split("[.]")[0]).startsWith("110");

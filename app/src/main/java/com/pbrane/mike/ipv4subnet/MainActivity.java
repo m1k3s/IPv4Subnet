@@ -18,7 +18,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import java.text.NumberFormat;
 
-// todo: see the CalculateSubnet class todo list
 
 public class MainActivity extends Activity {
 
@@ -398,18 +397,18 @@ public class MainActivity extends Activity {
 		// check for unusable address, loopback or diag IP, then private IP
 		if (usable == 0) {
 			textView.append("\n");
-			String noUsableIPsComment = "<font color=#FFD700>There are no usable hosts in this subnet.</font><br>";
+			String noUsableIPsComment = "<font color=#FFD700> * There are no usable hosts in this subnet.</font><br>";
 			textView.append(Html.fromHtml(noUsableIPsComment));
 		}
 		if (subnet.isLoopBackOrDiagIP(hostIP)) {
 			textView.append("\n");
-			String loopIPComment = "<font color=#FFD700>This host IP address is in the range of IPs"
+			String loopIPComment = "<font color=#FFD700> * This host IP address is in the range of IPs"
 					+ " used for loopback and diagnostic purposes.</font><br>";
 			textView.append(Html.fromHtml(loopIPComment));
 		}
 		if (subnet.isPrivateIP(hostIP)) {
 			textView.append("\n");
-			String privateIPComment = "<font color=#FFD700>This host IP address is in a private"
+			String privateIPComment = "<font color=#FFD700> * This host IP address is in a private"
 			+ " IP range and cannot be routed on the public network. Routers on the Internet should"
 			+ " be configured to discard these IPs.<br>" + getPrivateIpRangesString(hostIP) + "</font><br>";
 			textView.append(Html.fromHtml(privateIPComment));
