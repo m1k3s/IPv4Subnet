@@ -1,30 +1,26 @@
 package com.pbrane.mike.ipvxsubnet;
 
 //import android.app.Activity;
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.Html;
 import android.graphics.Typeface;
 import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import java.text.NumberFormat;
 
-// todo: add activity for IPv6 subnetting
 
-
-public class IPv4Activity extends ActionBarActivity {
+public class IPv4Activity extends Activity {
 
 	public static final int MAX_RANGES = 32; // maximum count of network ranges to display
     private CalculateSubnetIpv4 subnet = new CalculateSubnetIpv4();
@@ -131,27 +127,6 @@ public class IPv4Activity extends ActionBarActivity {
 
 		@Override
 		final public void onTextChanged(CharSequence s, int start, int before, int count) {}
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.menu_ipvx, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		switch (item.getItemId()) {
-			case R.id.action_settings:
-//                openSettings();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
-		}
 	}
 
 	@Override
