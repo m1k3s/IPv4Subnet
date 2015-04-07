@@ -20,7 +20,7 @@ import android.widget.TextView;
 import java.text.NumberFormat;
 
 
-public class IPv4Activity extends Activity {
+public class IPvXActivity extends Activity {
 
 	public static final int MAX_RANGES = 32; // maximum count of network ranges to display
     private CalculateSubnetIpv4 subnet = new CalculateSubnetIpv4();
