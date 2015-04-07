@@ -2,11 +2,11 @@ package com.pbrane.mike.ipvxsubnet;
 
 import android.util.Log;
 
-import java.util.regex.Matcher;
+//import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class CalculateSubnet {
+public class CalculateSubnetIpv4 {
 
 	private static final int IPV4_ADDR_BITS = 32;
     private static final String IP_ADDRESS = "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])";
@@ -45,7 +45,7 @@ public class CalculateSubnet {
 		available_subnets = calcAvailableSubnets(); // available networks in this subnet
 
 		// calculate all subnet ranges if the number of subnets is less than MAX_RANGES
-		if (available_subnets <= MainActivity.MAX_RANGES) {
+		if (available_subnets <= IPv4Activity.MAX_RANGES) {
 			ranges = calculateNetworkRanges();
 		} else { // calculate just the host network ranges
 			ranges = calculateRangeOfHostNetwork();
@@ -54,14 +54,16 @@ public class CalculateSubnet {
 
     public boolean validateCIDR(String cidr)
     {
-        Matcher matcher = cidrPattern.matcher(cidr);
-        return matcher.matches();
+//        Matcher matcher = cidrPattern.matcher(cidr);
+//        return matcher.matches();
+		return cidrPattern.matcher(cidr).matches();
     }
 
     public boolean validateIPAddress(String ip)
     {
-        Matcher matcher = addressPattern.matcher(ip);
-        return matcher.matches();
+//        Matcher matcher = addressPattern.matcher(ip);
+//        return matcher.matches();
+		return addressPattern.matcher(ip).matches();
     }
 
     public boolean validateIPAndMaskOctets(String ip)
@@ -281,7 +283,7 @@ public class CalculateSubnet {
 
 	public String[] calculateNetworkRanges()
 	{
-		int nets = available_subnets > MainActivity.MAX_RANGES ? MainActivity.MAX_RANGES : available_subnets;
+		int nets = available_subnets > IPv4Activity.MAX_RANGES ? IPv4Activity.MAX_RANGES : available_subnets;
 		String[] networks = new String[nets];
 		String base, top;
 
