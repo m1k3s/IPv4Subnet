@@ -3,4 +3,6 @@
     <string name="action_ipv4">IPv4</string>
     <string name="clr_button">Clr</string>
     <string name="savedIPv4">40.132.16.152/29</string>
+    <string name="ip_ime">IPvXIME</string>
+    <string name="subtype_en_US">en_US</string>
 </resources>

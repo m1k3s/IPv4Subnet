@@ -20,12 +20,13 @@ import android.widget.TextView;
 import java.text.NumberFormat;
 
 
-public class IPv4Activity extends Activity {
+public class IPvXActivity extends Activity {
 
 	public static final int MAX_RANGES = 32; // maximum count of network ranges to display
     private CalculateSubnetIpv4 subnet = new CalculateSubnetIpv4();
     private TextView textView;
 	private EditText editText;
+	private IPvXIME keyboard = new IPvXIME();
 	private enum AddrType { CIDR, IP_NETMASK, IP_ONLY, MULTICAST, RESERVED, INVALID }
 	private AddrType addrType;
 
@@ -34,7 +35,7 @@ public class IPv4Activity extends Activity {
 	{
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_ipv4);
+        setContentView(R.layout.activity_ipvx);
 
 		// Setup the textview widget
         textView = (TextView) findViewById(R.id.textView);

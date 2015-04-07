@@ -45,7 +45,7 @@ public class CalculateSubnetIpv4 {
 		available_subnets = calcAvailableSubnets(); // available networks in this subnet
 
 		// calculate all subnet ranges if the number of subnets is less than MAX_RANGES
-		if (available_subnets <= IPv4Activity.MAX_RANGES) {
+		if (available_subnets <= IPvXActivity.MAX_RANGES) {
 			ranges = calculateNetworkRanges();
 		} else { // calculate just the host network ranges
 			ranges = calculateRangeOfHostNetwork();
@@ -283,7 +283,7 @@ public class CalculateSubnetIpv4 {
 
 	public String[] calculateNetworkRanges()
 	{
-		int nets = available_subnets > IPv4Activity.MAX_RANGES ? IPv4Activity.MAX_RANGES : available_subnets;
+		int nets = available_subnets > IPvXActivity.MAX_RANGES ? IPvXActivity.MAX_RANGES : available_subnets;
 		String[] networks = new String[nets];
 		String base, top;
 
