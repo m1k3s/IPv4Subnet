@@ -8,7 +8,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputConnection;
 
-public class IPvXIME extends InputMethodService implements KeyboardView.OnKeyboardActionListener{
+public class IPvXIME extends InputMethodService implements KeyboardView.OnKeyboardActionListener {
 
 	private KeyboardView kv;
 	private Keyboard keyboard;

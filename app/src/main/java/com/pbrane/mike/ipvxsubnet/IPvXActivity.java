@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.inputmethodservice.KeyboardView;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.Editable;
@@ -26,7 +27,6 @@ public class IPvXActivity extends Activity {
     private CalculateSubnetIpv4 subnet = new CalculateSubnetIpv4();
     private TextView textView;
 	private EditText editText;
-	private IPvXIME keyboard = new IPvXIME();
 	private enum AddrType { CIDR, IP_NETMASK, IP_ONLY, MULTICAST, RESERVED, INVALID }
 	private AddrType addrType;
 
@@ -42,6 +42,9 @@ public class IPvXActivity extends Activity {
 		textView.setTypeface(Typeface.MONOSPACE);
 		textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.0f);
 		textView.setTextColor(Color.WHITE);
+
+		IPvXIME keyboard = new IPvXIME();
+		KeyboardView keyview = (KeyboardView)findViewById(R.id.ipkeyboard);
 
 		editText = (EditText) findViewById(R.id.editText);
 		// validate IP address as it's entered
