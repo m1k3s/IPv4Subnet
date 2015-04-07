@@ -34,7 +34,7 @@ public class IPvXActivity extends Activity {
 	{
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_ipv4);
+        setContentView(R.layout.activity_ipvx);
 
 		// Setup the textview widget
         textView = (TextView) findViewById(R.id.textView);
