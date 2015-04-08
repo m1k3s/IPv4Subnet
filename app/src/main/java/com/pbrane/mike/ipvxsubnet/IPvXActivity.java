@@ -1,10 +1,10 @@
 package com.pbrane.mike.ipvxsubnet;
 
-//import android.app.Activity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -19,9 +19,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import java.text.NumberFormat;
+import java.util.HashMap;
 
 
-public class IPvXActivity extends Activity {
+public class IPvXActivity extends Activity implements KeyboardView.OnKeyboardActionListener, View.OnKeyListener {
 
 	public static final int MAX_RANGES = 32; // maximum count of network ranges to display
     private CalculateSubnetIpv4 subnet = new CalculateSubnetIpv4();
@@ -29,6 +30,99 @@ public class IPvXActivity extends Activity {
 	private EditText editText;
 	private enum AddrType { CIDR, IP_NETMASK, IP_ONLY, MULTICAST, RESERVED, INVALID }
 	private AddrType addrType;
+
+	@Override
+	public boolean onKey(View v, int keyCode, KeyEvent event) {
+		HashMap<String, String> keyCodeMap = new HashMap<>();
+		keyCodeMap.put("1", "1");
+		keyCodeMap.put("2", "2");
+		keyCodeMap.put("3", "3");
+		keyCodeMap.put("4", "4");
+		keyCodeMap.put("5", "5");
+		keyCodeMap.put("6", "6");
+		keyCodeMap.put("7", "7");
+		keyCodeMap.put("8", "8");
+		keyCodeMap.put("9", "9");
+		keyCodeMap.put("0", "0");
+		keyCodeMap.put("-5", "DEL");
+		keyCodeMap.put("47", "/");
+		keyCodeMap.put("46", ".");
+		keyCodeMap.put("58", ":");
+		keyCodeMap.put("32", "SPACE");
+		keyCodeMap.put("66", "CALC");
+
+		String c = keyCodeMap.get(String.valueOf(keyCode));
+		if (!(c == null)){
+			editText.append(c);
+		} else {
+			switch(keyCode){
+				case -5:
+					if(editText.getText().toString().length() > 0) {
+						editText.setText(editText.getText().toString().substring(0, editText.getText().toString().length() - 1));
+					}
+					break;
+				case -4:
+					processEntry();
+					break;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public void onPress(int primaryCode) {
+
+	}
+
+	@Override
+	public void onRelease(int primaryCode) {
+
+	}
+
+	@Override
+	public void onKey(int primaryCode, int[] keyCodes) {
+
+	}
+
+	@Override
+	public void onText(CharSequence text) {
+
+	}
+
+	@Override
+	public void swipeLeft() {
+
+	}
+
+	@Override
+	public void swipeRight() {
+
+	}
+
+	@Override
+	public void swipeDown() {
+
+	}
+
+	@Override
+	public void swipeUp() {
+
+	}
+
+	private void toggleKeyboardVisibility() {
+		KeyboardView keyboardView = (KeyboardView) findViewById(R.id.ipkeyboard);
+		int visibility = keyboardView.getVisibility();
+		switch (visibility) {
+			case View.VISIBLE:
+				keyboardView.setVisibility(View.GONE);
+				break;
+			case View.GONE:
+			case View.INVISIBLE:
+				keyboardView.setVisibility(View.VISIBLE);
+//				editText = ei;
+				break;
+		}
+	}
 
 	@Override
     protected void onCreate(Bundle savedInstanceState)
@@ -43,10 +137,21 @@ public class IPvXActivity extends Activity {
 		textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.0f);
 		textView.setTextColor(Color.WHITE);
 
-		IPvXIME keyboard = new IPvXIME();
 		KeyboardView keyview = (KeyboardView)findViewById(R.id.ipkeyboard);
+		Keyboard keyboard = new Keyboard(this, R.xml.keyboard);
+		keyview.setKeyboard(keyboard);
+		keyview.setEnabled(true);
+		keyview.setPreviewEnabled(true);
+		keyview.setOnKeyListener(this);
+		keyview.setOnKeyboardActionListener(this);
 
 		editText = (EditText) findViewById(R.id.editText);
+//		editText.setCursorVisible(false);
+		editText.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				toggleKeyboardVisibility();
+			}
+		});
 		// validate IP address as it's entered
 		editText.addTextChangedListener(new TextValidator(editText)
 		{
@@ -102,7 +207,8 @@ public class IPvXActivity extends Activity {
 			{
 				switch (v.getId()) {
 					case R.id.textView:
-						HideSoftKeyboard();
+//						HideSoftKeyboard();
+						toggleKeyboardVisibility();
 						break;
 				}
 			}
@@ -163,11 +269,11 @@ public class IPvXActivity extends Activity {
 		return super.dispatchKeyEvent(e);
 	}
 
-	public void HideSoftKeyboard()
-	{
-		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), 0);
-	}
+//	public void HideSoftKeyboard()
+//	{
+//		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+//		imm.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), 0);
+//	}
 
 	public void processEntry()
 	{
@@ -420,6 +526,7 @@ public class IPvXActivity extends Activity {
 			textView.append(Html.fromHtml(privateIPComment));
 		}
 		displayLogo();
-		HideSoftKeyboard();
+		toggleKeyboardVisibility();
+//		HideSoftKeyboard();
     }
 }
