@@ -18,10 +18,8 @@
         android:layout_alignParentStart="true"
         android:layout_toStartOf="@+id/clrButton"
         android:enabled="true"
-        android:editable="false"
+        android:inputType="none"
         android:textColor="#ffffff"/>
-        <!--android:inputType="phone"-->
-
 
     <Button
         style="?android:attr/buttonStyleSmall"
@@ -55,11 +53,12 @@
     </ScrollView>
 
     <android.inputmethodservice.KeyboardView
-        android:id="@+id/ipkeyboard"
+        android:id="@+id/ipkeyboardview"
         android:visibility="gone"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
+        android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"/>
 </RelativeLayout>

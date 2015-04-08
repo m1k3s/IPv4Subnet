@@ -110,7 +110,7 @@ public class IPvXActivity extends Activity implements KeyboardView.OnKeyboardAct
 	}
 
 	private void toggleKeyboardVisibility() {
-		KeyboardView keyboardView = (KeyboardView) findViewById(R.id.ipkeyboard);
+		KeyboardView keyboardView = (KeyboardView) findViewById(R.id.ipkeyboardview);
 		int visibility = keyboardView.getVisibility();
 		switch (visibility) {
 			case View.VISIBLE:
