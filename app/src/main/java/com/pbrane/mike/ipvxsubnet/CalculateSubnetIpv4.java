@@ -1,13 +1,14 @@
-package com.pbrane.mike.ipv4subnet;
+package com.pbrane.mike.ipvxsubnet;
 
 import android.util.Log;
 
-import java.util.regex.Matcher;
+//import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class CalculateSubnet {
+public class CalculateSubnetIpv4 {
 
+	private static final int IPV4_ADDR_BITS = 32;
     private static final String IP_ADDRESS = "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])";
     private static final String CIDR = IP_ADDRESS + "(/([0-9]|[1-2][0-9]|3[0-2]))";
     private static final Pattern addressPattern = Pattern.compile("^" + IP_ADDRESS + "$");
@@ -31,7 +32,7 @@ public class CalculateSubnet {
         String []tmp = ipAddr_mask.split("/"); // split the IP and mask bits
         ipAddr = tmp[0];
         network_bits = Integer.parseInt(tmp[1]);
-        host_bits = 32 - network_bits;
+        host_bits = IPV4_ADDR_BITS - network_bits;
         binary_mask = maskBitsToBinary(network_bits); // netmask as binary string
 
         hosts_per_subnet = calcHostsPerSubnet(); // number of addresses (hosts) in subnet
@@ -42,8 +43,9 @@ public class CalculateSubnet {
         broadcast = broadcast(ipAddr, splitIntoDecimalOctets(binary_mask)); // broadcast IP
         max_host_addr = maximumHostAddress(); // last host IP
 		available_subnets = calcAvailableSubnets(); // available networks in this subnet
+
 		// calculate all subnet ranges if the number of subnets is less than MAX_RANGES
-		if (available_subnets <= MainActivity.MAX_RANGES) {
+		if (available_subnets <= IPvXActivity.MAX_RANGES) {
 			ranges = calculateNetworkRanges();
 		} else { // calculate just the host network ranges
 			ranges = calculateRangeOfHostNetwork();
@@ -52,14 +54,12 @@ public class CalculateSubnet {
 
     public boolean validateCIDR(String cidr)
     {
-        Matcher matcher = cidrPattern.matcher(cidr);
-        return matcher.matches();
+		return cidrPattern.matcher(cidr).matches();
     }
 
     public boolean validateIPAddress(String ip)
     {
-        Matcher matcher = addressPattern.matcher(ip);
-        return matcher.matches();
+		return addressPattern.matcher(ip).matches();
     }
 
     public boolean validateIPAndMaskOctets(String ip)
@@ -279,7 +279,7 @@ public class CalculateSubnet {
 
 	public String[] calculateNetworkRanges()
 	{
-		int nets = available_subnets > MainActivity.MAX_RANGES ? MainActivity.MAX_RANGES : available_subnets;
+		int nets = available_subnets > IPvXActivity.MAX_RANGES ? IPvXActivity.MAX_RANGES : available_subnets;
 		String[] networks = new String[nets];
 		String base, top;
 
@@ -396,6 +396,7 @@ public class CalculateSubnet {
                 + Integer.toString(Integer.parseInt(b.substring(24, 32), 2));
     }
 
+	// leading zero pad the octet manually, toBinaryString doesn't
 	public String octetToBinary(String octet)
 	{
 		String padding = "00000000"; // 8 bits in an octet
@@ -403,6 +404,7 @@ public class CalculateSubnet {
 		return result.substring(result.length() - padding.length(), result.length());
 	}
 
+	// leading zero pad the hex chars manually, toHexString doesn't
 	public String octetToHex(String octet)
 	{
 		String padding = "00"; // 2 hex characters in an octet
