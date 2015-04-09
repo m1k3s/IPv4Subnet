@@ -6,7 +6,7 @@ import android.util.Log;
 import java.util.regex.Pattern;
 
 
-public class CalculateSubnetIpv4 {
+public class CalculateSubnetIPv4 {
 
 	private static final int IPV4_ADDR_BITS = 32;
     private static final String IP_ADDRESS = "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])";
@@ -303,19 +303,37 @@ public class CalculateSubnetIpv4 {
 
 	public String[] calculateRangeOfHostNetwork()
 	{
-		int nets = (int)(256 / hosts_per_subnet);
+//		int nets = (int)(256 / hosts_per_subnet);
+//		nets = nets <= 0 ? 1 : nets;
+		int nets = calcNetworksInSubnet();
 		String[] networks = new String[nets];
 
 		String base = network.split("[.]")[0] + "." + network.split("[.]")[1] + "." + network.split("[.]")[2] + ".0";
-		if (!base.isEmpty()) {
-			networks[0] = base + " - " + getNextNetwork(base, (int)hosts_per_subnet - 1);
-			for (int k = 1; k < nets; k++) {
-				base = getNextNetwork(base, (int)hosts_per_subnet);
-				String top = getNextNetwork(base, (int)hosts_per_subnet - 1);
-				networks[k] = base + " - " + top;
+		if (nets == 1) {
+			networks[0] = network + " - " + getBroadcast();
+		} else {
+			if (!base.isEmpty()) {
+				networks[0] = base + " - " + getNextNetwork(base, (int) hosts_per_subnet - 1);
+				for (int k = 1; k < nets; k++) {
+					base = getNextNetwork(base, (int) hosts_per_subnet);
+					String top = getNextNetwork(base, (int) hosts_per_subnet - 1);
+					networks[k] = base + " - " + top;
+				}
 			}
 		}
 		return networks;
+	}
+
+	public int calcNetworksInSubnet() {
+		int nets;
+		if (hosts_per_subnet > 65536) {
+			nets = (int)(16777216 / hosts_per_subnet);
+		} else if (hosts_per_subnet > 256 && hosts_per_subnet <= 65536) {
+			nets = (int)(65536 / hosts_per_subnet);
+		} else {
+			nets = (int)(256 / hosts_per_subnet);
+		}
+		return nets <= 0 ? 1 : nets;
 	}
 
 	public long calcHostsForNetworkClass(String network)

@@ -22,10 +22,10 @@ import java.text.NumberFormat;
 public class IPvXActivity extends Activity {
 
 	public static final int MAX_RANGES = 32; // maximum count of network ranges to display
-    private CalculateSubnetIpv4 subnet4 = new CalculateSubnetIpv4();
+    private CalculateSubnetIPv4 subnet4 = new CalculateSubnetIPv4();
     private TextView textView;
 	private EditText editText;
-	private CustomKeyboard customKeyboard;
+	private CustomIPvXKeyboard customIPvXKeyboard;
 	private enum AddrType { CIDR, IP_NETMASK, IP_ONLY, MULTICAST, RESERVED, INVALID }
 	private AddrType addrType;
 
@@ -44,10 +44,10 @@ public class IPvXActivity extends Activity {
 
 		editText = (EditText) findViewById(R.id.editText);
 
-		// initialize the instance variable customKeyboard
-		customKeyboard = new CustomKeyboard(this, R.id.keyboardview, R.xml.keyboard);
+		// initialize the instance variable customIPvXKeyboard
+		customIPvXKeyboard = new CustomIPvXKeyboard(this, R.id.keyboardview, R.xml.keyboard);
 		// register the edittext
-		customKeyboard.registerEditText(R.id.editText);
+		customIPvXKeyboard.registerEditText(R.id.editText);
 
 		editText.setKeyListener(new DialerKeyListener() {
 			@Override
@@ -185,12 +185,12 @@ public class IPvXActivity extends Activity {
 
 	public void HideSoftKeyboard()
 	{
-		customKeyboard.hideCustomKeyboard();
+		customIPvXKeyboard.hideCustomKeyboard();
 	}
 
 	public void ShowSoftKeyboard(View view)
 	{
-		customKeyboard.showCustomKeyboard(view);
+		customIPvXKeyboard.showCustomKeyboard(view);
 	}
 
 	public void processEntry()
@@ -404,7 +404,7 @@ public class IPvXActivity extends Activity {
 		textView.append(Html.fromHtml("<font color=#00BFFF><b>[Networks]</b></font><br>"));
 		if (usable == 1) { // only one host
 			textView.append(String.format("%3d. %-15s -\n", 1, hostIP));
-		} else if (usable > 1) { // multiple subnets
+		} else if (usable > 1) { // one or more subnets
 			String[] ranges = subnet4.getRanges();
 			int count = 1;
 			for (String range : ranges) {

@@ -8,6 +8,7 @@ import android.inputmethodservice.KeyboardView.OnKeyboardActionListener;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.Layout;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -21,21 +22,22 @@ import android.widget.EditText;
 // custom keyboard class based on SimplicityApks tutorial on XDA
 // and Maarten Pennings CustomKeyboard class code.
 
-class CustomKeyboard implements android.content.DialogInterface.OnClickListener {
+class CustomIPvXKeyboard implements android.content.DialogInterface.OnClickListener {
 
     private KeyboardView keyboardView;
     private Activity hostActivity;
 
-    public CustomKeyboard(Activity host, int viewid, int layoutid) {
+    public CustomIPvXKeyboard(Activity host, int viewid, int layoutid) {
         hostActivity = host;
         keyboardView = (KeyboardView) hostActivity.findViewById(viewid);
         keyboardView.setKeyboard(new Keyboard(hostActivity, layoutid));
         keyboardView.setPreviewEnabled(false); // do not show preview balloons
 
-		OnKeyboardActionListener mOnKeyboardActionListener = new OnKeyboardActionListener() {
+		OnKeyboardActionListener onKeyboardActionListener = new OnKeyboardActionListener() {
 
 			// add special keys
 			public final static int CodeDelete = -5; // Keyboard.KEYCODE_DELETE
+			public final static int CodeHex = 55000; // used to switch to hex input mode
 
 			@Override
 			public void onKey(int primaryCode, int[] keyCodes) {
@@ -57,6 +59,8 @@ class CustomKeyboard implements android.content.DialogInterface.OnClickListener 
 					if (editable != null && start > 0) {
 						editable.delete(start - 1, start);
 					}
+				} else if (primaryCode == CodeHex) {
+					Log.i("CustomIPvXKeyboard", "Pressed CodeHex button: " + primaryCode);
 				} else if (primaryCode == Keyboard.KEYCODE_DONE) {
 					// We need to send the DONE to the _host_ activity to process the event
 					hostActivity.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
@@ -93,7 +97,7 @@ class CustomKeyboard implements android.content.DialogInterface.OnClickListener 
 			public void swipeUp() {
 			}
 		};
-		keyboardView.setOnKeyboardActionListener(mOnKeyboardActionListener);
+		keyboardView.setOnKeyboardActionListener(onKeyboardActionListener);
         // Hide the default keyboard initially
         hostActivity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
