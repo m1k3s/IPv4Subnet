@@ -22,7 +22,7 @@ import java.text.NumberFormat;
 public class IPvXActivity extends Activity {
 
 	public static final int MAX_RANGES = 32; // maximum count of network ranges to display
-    private CalculateSubnetIpv4 subnet = new CalculateSubnetIpv4();
+    private CalculateSubnetIpv4 subnet4 = new CalculateSubnetIpv4();
     private TextView textView;
 	private EditText editText;
 	private CustomKeyboard customKeyboard;
@@ -58,7 +58,8 @@ public class IPvXActivity extends Activity {
 
 			@Override
 			protected char[] getAcceptedChars() {
-				return new char[]{'1', '2', '3', '/',
+				return new char[]{
+						'1', '2', '3', '/',
 						'4', '5', '6', '.',
 						'7', '8', '9', //[backspace]
 						':', '0', ' ', //[enter]
@@ -69,34 +70,33 @@ public class IPvXActivity extends Activity {
 		editText.addTextChangedListener(new TextValidator(editText)
 		{
 			@Override
-			public void validate(TextView textView, String text)
-			{
+			public void validate(TextView textView, String text) {
 				if (text.isEmpty()) { // nothing to validate
 					addrType = AddrType.INVALID;
 					return;
 				}
-				// We don't subnet Class D or E
-				if (subnet.isClassD(text)) {
+				// We don't subnet4 Class D or E
+				if (subnet4.isClassD(text)) {
 					textView.setTextColor(Color.RED);
 					addrType = AddrType.MULTICAST;
 					return;
 				}
-				if (subnet.isClassE(text)) {
+				if (subnet4.isClassE(text)) {
 					textView.setTextColor(Color.RED);
 					addrType = AddrType.RESERVED;
 					return;
 				}
 				// Class A, B, C networks are okay
-				if (subnet.validateCIDR(text)) {
-				   	textView.setTextColor(Color.GREEN);
-				   	addrType = AddrType.CIDR;
-			   	} else if (subnet.validateIPAndMaskOctets(text)) {
-				   	textView.setTextColor(Color.GREEN);
-				   	addrType = AddrType.IP_NETMASK;
-			   	} else if (subnet.validateIPAddress(text)) {
-				   	textView.setTextColor(Color.GREEN);
-				   	addrType = AddrType.IP_ONLY;
-			   	} else {
+				if (subnet4.validateCIDR(text)) {
+					textView.setTextColor(Color.GREEN);
+					addrType = AddrType.CIDR;
+				} else if (subnet4.validateIPAndMaskOctets(text)) {
+					textView.setTextColor(Color.GREEN);
+					addrType = AddrType.IP_NETMASK;
+				} else if (subnet4.validateIPAddress(text)) {
+					textView.setTextColor(Color.GREEN);
+					addrType = AddrType.IP_ONLY;
+				} else {
 				   	textView.setTextColor(Color.RED);
 					addrType = AddrType.INVALID;
 			   	}
@@ -121,7 +121,6 @@ public class IPvXActivity extends Activity {
 				switch (v.getId()) {
 					case R.id.textView:
 						HideSoftKeyboard();
-//						customKeyboard.hideCustomKeyboard();
 						break;
 				}
 			}
@@ -171,11 +170,10 @@ public class IPvXActivity extends Activity {
 		validateAndCalculateSubnet(ipAddr);
 	}
 
-	// use the enter key to start the subnetting process
+	// use the keyboard enter key to start the subnetting process
 	@Override
 	public boolean dispatchKeyEvent(@NonNull KeyEvent e)
 	{
-//		Log.i("dispatchKeyEvent", "Keycode: " + e.getKeyCode());
 		if (e.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
 			if (e.getAction() == KeyEvent.ACTION_UP) {
 				processEntry();
@@ -188,15 +186,11 @@ public class IPvXActivity extends Activity {
 	public void HideSoftKeyboard()
 	{
 		customKeyboard.hideCustomKeyboard();
-//		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-//		imm.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), 0);
 	}
 
 	public void ShowSoftKeyboard(View view)
 	{
 		customKeyboard.showCustomKeyboard(view);
-//		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-//		imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
 	}
 
 	public void processEntry()
@@ -222,13 +216,13 @@ public class IPvXActivity extends Activity {
 	{
 		switch (addrType) {
 			case CIDR:
-				subnet.calculateSubnetCIDR(ipAddr);
+				subnet4.calculateSubnetCIDR(ipAddr);
 				break;
 			case IP_NETMASK:
-				subnet.calculateSubnetCIDR(subnet.convertToCIDR(ipAddr));
+				subnet4.calculateSubnetCIDR(subnet4.convertToCIDR(ipAddr));
 				break;
 			case IP_ONLY:
-				subnet.calculateSubnetCIDR(ipAddr + "/32"); // assume /32
+				subnet4.calculateSubnetCIDR(ipAddr + "/32"); // assume /32
 				break;
 			case MULTICAST:
 				displayMulticastError();
@@ -311,25 +305,25 @@ public class IPvXActivity extends Activity {
 	//
 	public String getPrivateIpRangesString(String ip)
 	{
-		long ipDec = Long.parseLong(subnet.ipToDecimal(ip));
+		long ipDec = Long.parseLong(subnet4.ipToDecimal(ip));
 		long ipLow, ipHigh;
 		String comment = "";
 
-		if (subnet.isClassA(ip)) {
-			ipLow = Long.parseLong(subnet.ipToDecimal("10.0.0.0"));
-			ipHigh = Long.parseLong(subnet.ipToDecimal("10.255.255.255"));
+		if (subnet4.isClassA(ip)) {
+			ipLow = Long.parseLong(subnet4.ipToDecimal("10.0.0.0"));
+			ipHigh = Long.parseLong(subnet4.ipToDecimal("10.255.255.255"));
 			if (ipDec >= ipLow && ipDec <= ipHigh) {
 				comment = "Range: 10.0.0.0 to 10.255.255.255";
 			}
-		} else if (subnet.isClassB(ip)) {
-			ipLow = Long.parseLong(subnet.ipToDecimal("172.16.0.0"));
-			ipHigh = Long.parseLong(subnet.ipToDecimal("172.31.255.255"));
+		} else if (subnet4.isClassB(ip)) {
+			ipLow = Long.parseLong(subnet4.ipToDecimal("172.16.0.0"));
+			ipHigh = Long.parseLong(subnet4.ipToDecimal("172.31.255.255"));
 			if (ipDec >= ipLow && ipDec <= ipHigh) {
 				comment = "Range: 172.16.0.0 to 172.31.255.255";
 			}
-		} else if (subnet.isClassC(ip)) {
-			ipLow = Long.parseLong(subnet.ipToDecimal("192.168.0.0"));
-			ipHigh = Long.parseLong(subnet.ipToDecimal("192.168.255.255"));
+		} else if (subnet4.isClassC(ip)) {
+			ipLow = Long.parseLong(subnet4.ipToDecimal("192.168.0.0"));
+			ipHigh = Long.parseLong(subnet4.ipToDecimal("192.168.255.255"));
 			if (ipDec >= ipLow && ipDec <= ipHigh) {
 				comment = "Range: 192.168.0.0 to 192.168.255.255";
 			}
@@ -343,65 +337,65 @@ public class IPvXActivity extends Activity {
 
 		// [Classful]
 		textView.append(Html.fromHtml("<font color=#00BFFF><b>[Classful]</b></font><br>"));
-		String hostIP = subnet.getIpAddr();
+		String hostIP = subnet4.getIpAddr();
 		textView.append(String.format("%-25s%s\n", "Host Address:", hostIP));
-		textView.append(String.format("%-25s%s\n", "Host Address (decimal):", subnet.getIpAddrDecimal()));
-		textView.append(String.format("%-25s%s\n", "Host Address (hex):", subnet.getIpAddrHex()));
-		textView.append(String.format("%-25s%s\n", "Network Class:", subnet.getNetworkClass(hostIP)));
-		String baseNetwork = subnet.getBaseNetwork(hostIP);
-		String baseNetworkMask = subnet.getNetworkClassMask(baseNetwork);
+		textView.append(String.format("%-25s%s\n", "Host Address (decimal):", subnet4.getIpAddrDecimal()));
+		textView.append(String.format("%-25s%s\n", "Host Address (hex):", subnet4.getIpAddrHex()));
+		textView.append(String.format("%-25s%s\n", "Network Class:", subnet4.getNetworkClass(hostIP)));
+		String baseNetwork = subnet4.getBaseNetwork(hostIP);
+		String baseNetworkMask = subnet4.getNetworkClassMask(baseNetwork);
 		textView.append(String.format("%-25s%s\n", "Network Address:", baseNetwork));
 		textView.append(String.format("%-25s%s\n", "Network Mask:", baseNetworkMask));
-		textView.append(String.format("%-25s%s\n", "Network Mask (hex):", subnet.ipToHex(baseNetworkMask)));
-		textView.append(String.format("%-25s%s\n", "Broadcast:", subnet.getNetworkClassBroadcast(baseNetwork)));
-		String nHosts = NumberFormat.getNumberInstance().format(subnet.calcHostsForNetworkClass(baseNetwork) - 2);
+		textView.append(String.format("%-25s%s\n", "Network Mask (hex):", subnet4.ipToHex(baseNetworkMask)));
+		textView.append(String.format("%-25s%s\n", "Broadcast:", subnet4.getNetworkClassBroadcast(baseNetwork)));
+		String nHosts = NumberFormat.getNumberInstance().format(subnet4.calcHostsForNetworkClass(baseNetwork) - 2);
 		textView.append(String.format("%-25s%s\n", "Number of hosts:", nHosts));
 		textView.append("\n");
 
 		// [CIDR]
 		textView.append(Html.fromHtml("<font color=#00BFFF><b>[CIDR]</b></font><br>"));
 		textView.append(String.format("%-25s%s\n", "Host Address:", hostIP));
-		textView.append(String.format("%-25s%s\n", "Host Address (decimal):", subnet.getIpAddrDecimal()));
-		textView.append(String.format("%-25s%s\n", "Host Address (hex):", subnet.getIpAddrHex()));
-		textView.append(String.format("%-25s%s\n", "Network Address:", subnet.getNetwork()));
-		String mask = subnet.getDecimalMaskOctets();
+		textView.append(String.format("%-25s%s\n", "Host Address (decimal):", subnet4.getIpAddrDecimal()));
+		textView.append(String.format("%-25s%s\n", "Host Address (hex):", subnet4.getIpAddrHex()));
+		textView.append(String.format("%-25s%s\n", "Network Address:", subnet4.getNetwork()));
+		String mask = subnet4.getDecimalMaskOctets();
 		textView.append(String.format("%-25s%s\n", "NetMask:", mask));
-		String nhbits = Integer.toString(subnet.getNetworkBits()) + " / " +Integer.toString(subnet.getHostBits());
+		String nhbits = Integer.toString(subnet4.getNetworkBits()) + " / " +Integer.toString(subnet4.getHostBits());
 		textView.append(String.format("%-25s%s\n", "Net/Host Mask (bits):", nhbits));
-		textView.append(String.format("%-25s%s\n", "NetMask (hex):", subnet.ipToHex(mask)));
-		textView.append(String.format("%-25s%s\n", "Broadcast:", subnet.getBroadcast()));
-		textView.append(String.format("%-25s%s\n", "Cisco Wildcard:", subnet.getWildcard()));
-		long usable = subnet.getUsableHosts();
-		long total = subnet.getNumberOfAddresses();
+		textView.append(String.format("%-25s%s\n", "NetMask (hex):", subnet4.ipToHex(mask)));
+		textView.append(String.format("%-25s%s\n", "Broadcast:", subnet4.getBroadcast()));
+		textView.append(String.format("%-25s%s\n", "Cisco Wildcard:", subnet4.getWildcard()));
+		long usable = subnet4.getUsableHosts();
+		long total = subnet4.getNumberOfAddresses();
 		String utips = formatNumber(usable) + " / " + formatNumber(total);
 		textView.append(String.format("%-25s%s\n", "Usable/Total IPs:", utips));
-		textView.append(String.format("%-9s%-15s - %-15s\n", "Network:", subnet.getNetwork(),subnet.getBroadcast()));
+		textView.append(String.format("%-9s%-15s - %-15s\n", "Network:", subnet4.getNetwork(), subnet4.getBroadcast()));
 		if (usable == 0) {
 			textView.append(Html.fromHtml("<font color=#FF0000><b>Usable:\u00A0\u00A00</b></font><br\n"));
 		} else if (usable == 1) {
 			textView.append(String.format("%-9s%-15s\n", "Usable:", 1));
 		} else {
-			textView.append(String.format("%-9s%-15s - %-15s\n", "Usable:", subnet.getMinHostAddr(), subnet.getMaxHostAddr()));
+			textView.append(String.format("%-9s%-15s - %-15s\n", "Usable:", subnet4.getMinHostAddr(), subnet4.getMaxHostAddr()));
 		}
-		String nSubnets = NumberFormat.getNumberInstance().format(subnet.getAvailableSubnets());
+		String nSubnets = NumberFormat.getNumberInstance().format(subnet4.getAvailableSubnets());
 		textView.append(String.format("%-25s%s\n", "Available Subnets:", nSubnets));
 		textView.append("\n");
 
 		// [Classfull Bitmaps]
 		textView.append(Html.fromHtml("<font color=#00BFFF><b>[Classful Bitmaps]</b></font><br>"));
-		textView.append(String.format("%-10s%s\n", "Host IP:", subnet.ipToBinary(hostIP, true)));
-		textView.append(String.format("%-10s%s\n", "Net IP:", subnet.ipToBinary(baseNetwork, true)));
-		textView.append(String.format("%-10s%s\n", "Netmask:", subnet.ipToBinary(baseNetworkMask, true)));
-		textView.append(String.format("%-10s%s\n", "Brdcast:", subnet.ipToBinary(subnet.getNetworkClassBroadcast(baseNetwork), true)));
+		textView.append(String.format("%-10s%s\n", "Host IP:", subnet4.ipToBinary(hostIP, true)));
+		textView.append(String.format("%-10s%s\n", "Net IP:", subnet4.ipToBinary(baseNetwork, true)));
+		textView.append(String.format("%-10s%s\n", "Netmask:", subnet4.ipToBinary(baseNetworkMask, true)));
+		textView.append(String.format("%-10s%s\n", "Brdcast:", subnet4.ipToBinary(subnet4.getNetworkClassBroadcast(baseNetwork), true)));
 		textView.append("\n");
 
 		// [CIDR Bitmaps]
 		textView.append(Html.fromHtml("<font color=#00BFFF><b>[CIDR Bitmaps]</b></font><br>"));
-		textView.append(String.format("%-10s%s\n", "Host IP:", subnet.ipToBinary(hostIP, true)));
-		textView.append(String.format("%-10s%s\n", "Net IP:", subnet.ipToBinary(baseNetwork, true)));
-		textView.append(String.format("%-10s%s\n", "Netmask:", subnet.ipToBinary(mask, true)));
-		textView.append(String.format("%-10s%s\n", "Brdcast:", subnet.ipToBinary(subnet.getBroadcast(), true)));
-		textView.append(String.format("%-10s%s\n", "Wildcard:", subnet.ipToBinary(subnet.getWildcard(), true)));
+		textView.append(String.format("%-10s%s\n", "Host IP:", subnet4.ipToBinary(hostIP, true)));
+		textView.append(String.format("%-10s%s\n", "Net IP:", subnet4.ipToBinary(baseNetwork, true)));
+		textView.append(String.format("%-10s%s\n", "Netmask:", subnet4.ipToBinary(mask, true)));
+		textView.append(String.format("%-10s%s\n", "Brdcast:", subnet4.ipToBinary(subnet4.getBroadcast(), true)));
+		textView.append(String.format("%-10s%s\n", "Wildcard:", subnet4.ipToBinary(subnet4.getWildcard(), true)));
 		textView.append("\n");
 
 		// [Networks]
@@ -410,12 +404,12 @@ public class IPvXActivity extends Activity {
 		if (usable == 1) { // only one host
 			textView.append(String.format("%3d. %-15s -\n", 1, hostIP));
 		} else if (usable > 1) { // multiple subnets
-			String[] ranges = subnet.getRanges();
+			String[] ranges = subnet4.getRanges();
 			int count = 1;
 			for (String range : ranges) {
 				String low = range.split(" - ")[0];
 				String high = range.split(" - ")[1];
-				if (low.equals(subnet.getNetwork())) {
+				if (low.equals(subnet4.getNetwork())) {
 					textView.append(String.format("%3d. %-15s - %-15s", count, low, high));
 					textView.append(Html.fromHtml("<font color=#00ff00><b>\u00A0&lt==</b></font><br>\n"));
 				} else {
@@ -435,13 +429,13 @@ public class IPvXActivity extends Activity {
 			String noUsableIPsComment = "<font color=#FFD700> * There are no usable hosts in this subnet.</font><br>";
 			textView.append(Html.fromHtml(noUsableIPsComment));
 		}
-		if (subnet.isLoopBackOrDiagIP(hostIP)) {
+		if (subnet4.isLoopBackOrDiagIP(hostIP)) {
 			textView.append("\n");
 			String loopIPComment = "<font color=#FFD700> * This host IP address is in the range of IPs"
 					+ " used for loopback and diagnostic purposes.</font><br>";
 			textView.append(Html.fromHtml(loopIPComment));
 		}
-		if (subnet.isPrivateIP(hostIP)) {
+		if (subnet4.isPrivateIP(hostIP)) {
 			textView.append("\n");
 			String privateIPComment = "<font color=#FFD700> * This host IP address is in a private"
 			+ " IP range and cannot be routed on the public network. Routers on the Internet should"

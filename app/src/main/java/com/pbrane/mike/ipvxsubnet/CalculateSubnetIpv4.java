@@ -54,15 +54,11 @@ public class CalculateSubnetIpv4 {
 
     public boolean validateCIDR(String cidr)
     {
-//        Matcher matcher = cidrPattern.matcher(cidr);
-//        return matcher.matches();
 		return cidrPattern.matcher(cidr).matches();
     }
 
     public boolean validateIPAddress(String ip)
     {
-//        Matcher matcher = addressPattern.matcher(ip);
-//        return matcher.matches();
 		return addressPattern.matcher(ip).matches();
     }
 
