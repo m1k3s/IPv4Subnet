@@ -1,22 +1,3 @@
-/**
- * Copyright 2013 Maarten Pennings extended by SimplicityApks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * If you use this software in a product, an acknowledgment in the product
- * documentation would be appreciated but is not required.
- */
-
 package com.pbrane.mike.ipvxsubnet;
 
 import android.app.Activity;
@@ -27,8 +8,6 @@ import android.inputmethodservice.KeyboardView.OnKeyboardActionListener;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.Layout;
-//import android.util.Log;
-//import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -41,24 +20,23 @@ import android.widget.EditText;
 
 class CustomKeyboard implements android.content.DialogInterface.OnClickListener {
 
-    private KeyboardView mKeyboardView;
-    private Activity     mHostActivity;
-//    private boolean hapticFeedback;
+    private KeyboardView keyboardView;
+    private Activity hostActivity;
 
     public CustomKeyboard(Activity host, int viewid, int layoutid) {
-        mHostActivity= host;
-        mKeyboardView= (KeyboardView)mHostActivity.findViewById(viewid);
-        mKeyboardView.setKeyboard(new Keyboard(mHostActivity, layoutid));
-        mKeyboardView.setPreviewEnabled(false); // NOTE Do not show the preview balloons
+        hostActivity = host;
+        keyboardView = (KeyboardView) hostActivity.findViewById(viewid);
+        keyboardView.setKeyboard(new Keyboard(hostActivity, layoutid));
+        keyboardView.setPreviewEnabled(false); // do not show preview balloons
 
 		OnKeyboardActionListener mOnKeyboardActionListener = new OnKeyboardActionListener() {
 
-			// add your own special keys here:
+			// add special keys
 			public final static int CodeDelete = -5; // Keyboard.KEYCODE_DELETE
 
 			@Override
 			public void onKey(int primaryCode, int[] keyCodes) {
-				View focusCurrent = mHostActivity.getWindow().getCurrentFocus();
+				View focusCurrent = hostActivity.getWindow().getCurrentFocus();
 				if (focusCurrent == null || focusCurrent.getClass() != EditText.class) {
 					return;
 				}
@@ -77,8 +55,8 @@ class CustomKeyboard implements android.content.DialogInterface.OnClickListener 
 						editable.delete(start - 1, start);
 					}
 				} else if (primaryCode == Keyboard.KEYCODE_DONE) {
-					// We need to send the DONE to the host activity to process the event
-					mHostActivity.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
+					// We need to send the DONE to the _host_ activity to process the event
+					hostActivity.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
 				} else { // insert character
 					editable.insert(start, Character.toString((char) primaryCode));
 				}
@@ -112,35 +90,32 @@ class CustomKeyboard implements android.content.DialogInterface.OnClickListener 
 			public void swipeUp() {
 			}
 		};
-		mKeyboardView.setOnKeyboardActionListener(mOnKeyboardActionListener);
-        // Hide the standard keyboard initially
-        mHostActivity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+		keyboardView.setOnKeyboardActionListener(mOnKeyboardActionListener);
+        // Hide the default keyboard initially
+        hostActivity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
-    // Returns whether the CustomKeyboard is visible.
     public boolean isCustomKeyboardVisible() {
-        return mKeyboardView.getVisibility() == View.VISIBLE;
+        return keyboardView.getVisibility() == View.VISIBLE;
     }
 
-    // Make the CustomKeyboard visible, and hide the system keyboard for view v.
-    public void showCustomKeyboard( View v ) {
-        mKeyboardView.setVisibility(View.VISIBLE);
-        mKeyboardView.setEnabled(true);
+    // make the CustomKeyboard visible, and hide the system keyboard for view.
+    public void showCustomKeyboard(View v  ) {
+        keyboardView.setVisibility(View.VISIBLE);
+        keyboardView.setEnabled(true);
         if (v != null) {
-			((InputMethodManager)mHostActivity.getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(v.getWindowToken(), 0);
+			((InputMethodManager) hostActivity.getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(v.getWindowToken(), 0);
 		}
     }
 
-    // Make the CustomKeyboard invisible.
     public void hideCustomKeyboard() {
-        mKeyboardView.setVisibility(View.GONE);
-        mKeyboardView.setEnabled(false);
+        keyboardView.setVisibility(View.GONE);
+        keyboardView.setEnabled(false);
     }
 
     public void registerEditText(int resid) {
-        // Find the EditText 'resid'
-        final EditText edittext= (EditText)mHostActivity.findViewById(resid);
-        // Make the custom keyboard appear
+        final EditText edittext= (EditText) hostActivity.findViewById(resid);
+        // set the custom keyboard visible
         edittext.setOnFocusChangeListener(new OnFocusChangeListener() {
             // NOTE By setting the on focus listener, we can show the custom keyboard when the edit
             // box gets focus, but also hide it when the edit box loses focus
@@ -161,22 +136,19 @@ class CustomKeyboard implements android.content.DialogInterface.OnClickListener 
                 showCustomKeyboard(v);
             }
         });
-        // Disable standard keyboard hard way
-        // NOTE There is also an easy way: 'edittext.setInputType(InputType.TYPE_NULL)' (but you
-        // will not have a cursor, and no 'edittext.setCursorVisible(true)' doesn't work )
         edittext.setOnTouchListener(new OnTouchListener() {
             @Override 
             public boolean onTouch(View v, MotionEvent event) {
                 EditText edittext = (EditText) v;
-                int inType = edittext.getInputType();       // Backup the input type
-                edittext.setInputType(InputType.TYPE_NULL); // Disable standard keyboard
-                edittext.onTouchEvent(event);               // Call native handler
-                edittext.setInputType(inType);              // Restore input type
+                int inType = edittext.getInputType();       // backup the input type
+                edittext.setInputType(InputType.TYPE_NULL); // disable standard keyboard
+                edittext.onTouchEvent(event);               // call native handler
+                edittext.setInputType(inType);              // restore input type
                 edittext.setCursorVisible(true);
-                return true; // Consume touch event
+                return true; // consume touch event
             }
         });
-        // Disable spell check (hex strings look like words to Android)
+        // disable spell check
         edittext.setInputType(edittext.getInputType() | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         //
         // Try to show cursor the complicated way:

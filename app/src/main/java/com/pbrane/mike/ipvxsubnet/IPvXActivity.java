@@ -11,7 +11,6 @@ import android.graphics.Typeface;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DialerKeyListener;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
@@ -59,12 +58,11 @@ public class IPvXActivity extends Activity {
 
 			@Override
 			protected char[] getAcceptedChars() {
-				char[] res = {'1', '2', '3', '/',
+				return new char[]{'1', '2', '3', '/',
 						'4', '5', '6', '.',
 						'7', '8', '9', //[backspace]
 						':', '0', ' ', //[enter]
 				};
-				return res;
 			}
 		});
 		// validate IP address as it's entered
@@ -250,7 +248,6 @@ public class IPvXActivity extends Activity {
     public void on_clr(View view)
     {
 		editText.setText("");
-//		customKeyboard.showCustomKeyboard(view);
 		ShowSoftKeyboard(view);
     }
 
@@ -453,6 +450,5 @@ public class IPvXActivity extends Activity {
 		}
 		displayLogo();
 		HideSoftKeyboard();
-//		customKeyboard.hideCustomKeyboard();
     }
 }

@@ -19,12 +19,12 @@
         <Key android:codes="55" android:keyLabel="7" android:keyEdgeFlags="left"/>
         <Key android:codes="56" android:keyLabel="8"/>
         <Key android:codes="57" android:keyLabel="9"/>
-        <Key android:codes="-5" android:keyIcon="@mipmap/sym_keyboard_delete_holo_dark" android:isRepeatable="true" android:keyEdgeFlags="right"/>
+        <Key android:codes="-5" android:keyIcon="@mipmap/sym_keyboard_delete_lxx_light" android:isRepeatable="true" android:keyEdgeFlags="right"/>
     </Row>
     <Row android:rowEdgeFlags="bottom">
         <Key android:codes="58" android:keyLabel=":" android:keyEdgeFlags="left"/>
         <Key android:codes="48" android:keyLabel="0"/>
-        <Key android:codes="32" android:keyIcon="@mipmap/sym_keyboard_space"/>
-        <Key android:codes="-4" android:keyIcon="@mipmap/ic_action_done" android:keyEdgeFlags="right"/>
+        <Key android:codes="32" android:keyIcon="@mipmap/sym_keyboard_space_lxx_light"/>
+        <Key android:codes="-4" android:keyIcon="@mipmap/unbundled_check_02" android:keyEdgeFlags="right"/>
     </Row>
 </Keyboard>
