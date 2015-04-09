@@ -247,11 +247,12 @@ public class IPvXActivity extends Activity {
 
 	protected void displayLogo()
 	{
-		String logoString = "<small><font color=#4169E1><b>IPv4</font>"
+		String logoString = "<small><font color=#4169E1><b>IPvX</font>"
 				+ "<font color=#00CC00>Subnet\u00A0-\u00A0</b></font>"
 				+ "<font color=#C5C5C5><u><b>Michael</b></u></font>"
 				+ "<font color=#DF0000><u>Sheppard</u></font>"
-				+ "<font color=#4169E1>\u00A0-\u00A0<b>2015</b></font>\n";
+				+ "<font color=#4169E1>\u00A0-\u00A0<b>2015</b></font>"
+				+ "<font color=#C5C5C5>\u00A0Version 1.0.5</font>\n";
 
 		textView.append("\n");
 		textView.append("--------------------------\n");
