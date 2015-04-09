@@ -1,7 +1,6 @@
 package com.pbrane.mike.ipvxsubnet;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -11,12 +10,11 @@ import android.text.Html;
 import android.graphics.Typeface;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.text.method.NumberKeyListener;
 import android.text.method.DialerKeyListener;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import java.text.NumberFormat;
@@ -124,8 +122,8 @@ public class IPvXActivity extends Activity {
 			{
 				switch (v.getId()) {
 					case R.id.textView:
-//						HideSoftKeyboard();
-						customKeyboard.hideCustomKeyboard();
+						HideSoftKeyboard();
+//						customKeyboard.hideCustomKeyboard();
 						break;
 				}
 			}
@@ -179,18 +177,29 @@ public class IPvXActivity extends Activity {
 	@Override
 	public boolean dispatchKeyEvent(@NonNull KeyEvent e)
 	{
+//		Log.i("dispatchKeyEvent", "Keycode: " + e.getKeyCode());
 		if (e.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-			processEntry();
-			return true;
+			if (e.getAction() == KeyEvent.ACTION_UP) {
+				processEntry();
+				return true;
+			}
 		}
 		return super.dispatchKeyEvent(e);
 	}
 
-//	public void HideSoftKeyboard()
-//	{
+	public void HideSoftKeyboard()
+	{
+		customKeyboard.hideCustomKeyboard();
 //		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 //		imm.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), 0);
-//	}
+	}
+
+	public void ShowSoftKeyboard(View view)
+	{
+		customKeyboard.showCustomKeyboard(view);
+//		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+//		imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+	}
 
 	public void processEntry()
 	{
@@ -241,9 +250,8 @@ public class IPvXActivity extends Activity {
     public void on_clr(View view)
     {
 		editText.setText("");
-		customKeyboard.showCustomKeyboard(view);
-//		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-//		imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+//		customKeyboard.showCustomKeyboard(view);
+		ShowSoftKeyboard(view);
     }
 
 	protected void displayLogo()
@@ -444,7 +452,7 @@ public class IPvXActivity extends Activity {
 			textView.append(Html.fromHtml(privateIPComment));
 		}
 		displayLogo();
-//		HideSoftKeyboard();
-		customKeyboard.hideCustomKeyboard();
+		HideSoftKeyboard();
+//		customKeyboard.hideCustomKeyboard();
     }
 }
