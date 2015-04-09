@@ -18,6 +18,9 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+// custom keyboard class based on SimplicityApks tutorial on XDA
+// and Maarten Pennings CustomKeyboard class code.
+
 class CustomKeyboard implements android.content.DialogInterface.OnClickListener {
 
     private KeyboardView keyboardView;
