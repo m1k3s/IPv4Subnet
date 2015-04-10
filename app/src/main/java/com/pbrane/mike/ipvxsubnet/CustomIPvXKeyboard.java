@@ -8,7 +8,6 @@ import android.inputmethodservice.KeyboardView.OnKeyboardActionListener;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.Layout;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -37,7 +36,6 @@ class CustomIPvXKeyboard implements android.content.DialogInterface.OnClickListe
 
 			// add special keys
 			public final static int CodeDelete = -5; // Keyboard.KEYCODE_DELETE
-			public final static int CodeHex = 55000; // used to switch to hex input mode
 
 			@Override
 			public void onKey(int primaryCode, int[] keyCodes) {
@@ -59,8 +57,6 @@ class CustomIPvXKeyboard implements android.content.DialogInterface.OnClickListe
 					if (editable != null && start > 0) {
 						editable.delete(start - 1, start);
 					}
-				} else if (primaryCode == CodeHex) {
-					Log.i("CustomIPvXKeyboard", "Pressed CodeHex button: " + primaryCode);
 				} else if (primaryCode == Keyboard.KEYCODE_DONE) {
 					// We need to send the DONE to the _host_ activity to process the event
 					hostActivity.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
