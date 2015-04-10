@@ -62,7 +62,7 @@ public class IPvXActivity extends Activity {
 						'1', '2', '3', '/',
 						'4', '5', '6', '.',
 						'7', '8', '9', //[backspace]
-						':', '0', ' ', //[enter]
+						     '0', ' ', //[enter]
 				};
 			}
 		});
@@ -242,6 +242,7 @@ public class IPvXActivity extends Activity {
     public void on_clr(View view)
     {
 		editText.setText("");
+		editText.setHint(R.string.ip_hint);
 		ShowSoftKeyboard(view);
     }
 

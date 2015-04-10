@@ -19,7 +19,10 @@
         android:layout_toStartOf="@+id/clrButton"
         android:enabled="true"
         android:inputType="phone"
-        android:textColor="#ffffff"/>
+        android:textColor="#ffffff"
+        android:hint="@string/ip_hint"
+        android:textColorHint="#c5c5c5"
+        android:singleLine="true"/>
 
     <Button
         style="?android:attr/buttonStyleSmall"
