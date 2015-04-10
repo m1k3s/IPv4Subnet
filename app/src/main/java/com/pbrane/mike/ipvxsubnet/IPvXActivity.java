@@ -78,33 +78,36 @@ public class IPvXActivity extends Activity {
 					addrType = AddrType.INVALID;
 					return;
 				}
-				// We don't subnet4 Class D or E
-				if (!text.contains(":") && subnet4.isClassD(text)) {
-					textView.setTextColor(Color.RED);
-					addrType = AddrType.MULTICAST;
-					return;
-				}
-				if (!text.contains(":") && subnet4.isClassE(text)) {
-					textView.setTextColor(Color.RED);
-					addrType = AddrType.RESERVED;
-					return;
-				}
-				// Class A, B, C networks are okay
-				if (subnet4.validateCIDR(text)) {
-					textView.setTextColor(Color.GREEN);
-					addrType = AddrType.CIDR;
-				} else if (subnet4.validateIPAndMaskOctets(text)) {
-					textView.setTextColor(Color.GREEN);
-					addrType = AddrType.IP_NETMASK;
-				} else if (subnet4.validateIPAddress(text)) {
-					textView.setTextColor(Color.GREEN);
-					addrType = AddrType.IP_ONLY;
-				} else if (subnet6.validateIPv6Address(text)) {
+				// Check for IPv6 first
+				if (subnet6.validateIPv6Address(text)) {
 					textView.setTextColor(Color.GREEN);
 					addrType = AddrType.IPV6;
-				} else {
-					textView.setTextColor(Color.RED);
-					addrType = AddrType.INVALID;
+				} else { // gotta be IPv4, right?
+					// We don't subnet4 Class D or E
+					if (!text.contains(":") && subnet4.isClassD(text)) {
+						textView.setTextColor(Color.RED);
+						addrType = AddrType.MULTICAST;
+						return;
+					}
+					if (!text.contains(":") && subnet4.isClassE(text)) {
+						textView.setTextColor(Color.RED);
+						addrType = AddrType.RESERVED;
+						return;
+					}
+					// Class A, B, C networks are okay
+					if (subnet4.validateCIDR(text)) {
+						textView.setTextColor(Color.GREEN);
+						addrType = AddrType.CIDR;
+					} else if (subnet4.validateIPAndMaskOctets(text)) {
+						textView.setTextColor(Color.GREEN);
+						addrType = AddrType.IP_NETMASK;
+					} else if (subnet4.validateIPAddress(text)) {
+						textView.setTextColor(Color.GREEN);
+						addrType = AddrType.IP_ONLY;
+					} else {
+						textView.setTextColor(Color.RED);
+						addrType = AddrType.INVALID;
+					}
 				}
 			}
 		});
@@ -244,7 +247,11 @@ public class IPvXActivity extends Activity {
 				displayError();
 				return;
 		}
-		displayResults();
+		if (addrType == AddrType.IPV6) {
+			displayIPv6Results();
+		} else {
+			displayIPv4Results();
+		}
 	}
 
 	// 'Clr' button callback
@@ -261,7 +268,7 @@ public class IPvXActivity extends Activity {
 				+ "<font color=#C5C5C5><u><b>Michael</b></u></font>"
 				+ "<font color=#DF0000><u>Sheppard</u></font>"
 				+ "<font color=#4169E1>\u00A0-\u00A0<b>2015</b></font>"
-				+ "<font color=#C5C5C5>\u00A0Version 1.0.5</font>\n";
+				+ "<font color=#C5C5C5>\u00A0Version DEV</font>\n";
 
 		textView.append("\n");
 		textView.append("--------------------------\n");
@@ -341,7 +348,14 @@ public class IPvXActivity extends Activity {
 		return comment;
 	}
 
-    public void displayResults()
+	public void displayIPv6Results()
+	{
+		textView.append(Html.fromHtml("<font color=#00BFFF><b>[IPv6 Info]</b></font><br>"));
+		displayLogo();
+		HideSoftKeyboard();
+	}
+
+    public void displayIPv4Results()
     {
         textView.setText(""); // clear TextView
 

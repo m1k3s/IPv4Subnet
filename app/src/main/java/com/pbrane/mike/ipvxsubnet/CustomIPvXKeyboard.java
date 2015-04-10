@@ -41,7 +41,6 @@ class CustomIPvXKeyboard implements android.content.DialogInterface.OnClickListe
 		OnKeyboardActionListener onKeyboardActionListener = new OnKeyboardActionListener() {
 
 			// add special keys
-			public final static int CodeDelete = -5; // Keyboard.KEYCODE_DELETE
 			public final static int CodeIPvX = 55000; // used to switch between ipv4|ipv6 input mode
 			public final static int CodeDColon = 55001; // double colon ::
 			public final static int CodeSlash128 = 55002; // slash 128 /128
@@ -64,7 +63,7 @@ class CustomIPvXKeyboard implements android.content.DialogInterface.OnClickListe
 					editable.delete(start, end);
 				}
 				// Apply the key to the edittext
-				if (primaryCode == CodeDelete) {
+				if (primaryCode == Keyboard.KEYCODE_DELETE) {
 					if (editable != null && start > 0) {
 						editable.delete(start - 1, start);
 					}
