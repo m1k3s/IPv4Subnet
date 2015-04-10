@@ -8,7 +8,6 @@ import android.inputmethodservice.KeyboardView.OnKeyboardActionListener;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.Layout;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -43,11 +42,11 @@ class CustomIPvXKeyboard implements android.content.DialogInterface.OnClickListe
 
 			// add special keys
 			public final static int CodeDelete = -5; // Keyboard.KEYCODE_DELETE
-			public final static int CodeHex = 55000; // used to switch between ipv4|ipv6 input mode
+			public final static int CodeIPvX = 55000; // used to switch between ipv4|ipv6 input mode
 			public final static int CodeDColon = 55001; // double colon ::
 			public final static int CodeSlash128 = 55002; // slash 128 /128
 			public final static int CodeSlash64 = 55003; // slash 64 /64
-			public final static int CodeBlank = 55004; // blank key
+//			public final static int CodeBlank = 55004; // blank key, not used for anything (yet)
 
 			@Override
 			public void onKey(int primaryCode, int[] keyCodes) {
@@ -69,7 +68,7 @@ class CustomIPvXKeyboard implements android.content.DialogInterface.OnClickListe
 					if (editable != null && start > 0) {
 						editable.delete(start - 1, start);
 					}
-				} else if (primaryCode == CodeHex) {
+				} else if (primaryCode == CodeIPvX) {
 					if (keyboardView != null) {
 						if (keyboardState == R.integer.ipv4_mode) {
 							if (ipv6Keyboard == null) {
@@ -94,8 +93,6 @@ class CustomIPvXKeyboard implements android.content.DialogInterface.OnClickListe
 					editable.insert(start, "/128");
 				} else if (primaryCode == CodeSlash64) {
 					editable.insert(start, "/64");
-				} else if (primaryCode == CodeBlank) {
-					Log.i("CustomIPvXKeyboard", "Pressed a blank key");
 				} else { // insert character
 					editable.insert(start, Character.toString((char) primaryCode));
 				}

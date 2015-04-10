@@ -48,7 +48,7 @@
     </Row>
     <Row  android:keyboardMode="@integer/ipv6_mode" android:rowEdgeFlags="bottom">
         <Key android:codes="55000" android:keyLabel="IPv4" android:keyEdgeFlags="left"/>
-        <Key android:codes="55004" android:keyLabel=""/>
+        <Key android:codes="55004" android:keyLabel=""/> <!-- blank key -->
         <Key android:codes="32" android:keyIcon="@mipmap/sym_keyboard_space_lxx_light"/>
         <Key android:codes="-4" android:keyIcon="@mipmap/unbundled_check_02" android:keyEdgeFlags="right"/>
     </Row>

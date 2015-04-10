@@ -1,9 +1,6 @@
 package com.pbrane.mike.ipvxsubnet;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.regex.Pattern;
 
 public class CalculateSubnetIPv6 {
@@ -35,13 +32,12 @@ public class CalculateSubnetIPv6 {
 
 	public boolean validateIPv6Address(String addr)
 	{
-		return InetAddressValidator.getInstance().isValidInet6Address(addr);
-//		if (validateStandardIPv6(addr)) {
-//			return true;
-//		} else if (validateCompressedIPv6(addr)) {
-//			return true;
-//		}
-//		return false;
+		if (validateStandardIPv6(addr)) {
+			return true;
+		} else if (validateCompressedIPv6(addr)) {
+			return true;
+		}
+		return false;
 	}
 
 	public boolean validateStandardIPv6(String addr)
