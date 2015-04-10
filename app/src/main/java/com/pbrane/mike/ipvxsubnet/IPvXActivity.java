@@ -23,10 +23,11 @@ public class IPvXActivity extends Activity {
 
 	public static final int MAX_RANGES = 32; // maximum count of network ranges to display
     private CalculateSubnetIPv4 subnet4 = new CalculateSubnetIPv4();
+	private CalculateSubnetIPv6 subnet6 = new CalculateSubnetIPv6();
     private TextView textView;
 	private EditText editText;
 	private CustomIPvXKeyboard customIPvXKeyboard;
-	private enum AddrType { CIDR, IP_NETMASK, IP_ONLY, MULTICAST, RESERVED, INVALID }
+	private enum AddrType { CIDR, IP_NETMASK, IP_ONLY, MULTICAST, RESERVED, IPV6, INVALID }
 	private AddrType addrType;
 
 	@Override
@@ -59,10 +60,12 @@ public class IPvXActivity extends Activity {
 			@Override
 			protected char[] getAcceptedChars() {
 				return new char[]{
-						'1', '2', '3', '/',
+						'1', '2', '3', '/',// ipv4 keys
 						'4', '5', '6', '.',
 						'7', '8', '9', //[backspace]
 						':', '0', ' ', //[enter]
+						'a', 'b', 'c', 'd', // ipv6 keys
+						'e', 'f',
 				};
 			}
 		});
@@ -76,12 +79,12 @@ public class IPvXActivity extends Activity {
 					return;
 				}
 				// We don't subnet4 Class D or E
-				if (subnet4.isClassD(text)) {
+				if (!text.contains(":") && subnet4.isClassD(text)) {
 					textView.setTextColor(Color.RED);
 					addrType = AddrType.MULTICAST;
 					return;
 				}
-				if (subnet4.isClassE(text)) {
+				if (!text.contains(":") && subnet4.isClassE(text)) {
 					textView.setTextColor(Color.RED);
 					addrType = AddrType.RESERVED;
 					return;
@@ -96,17 +99,20 @@ public class IPvXActivity extends Activity {
 				} else if (subnet4.validateIPAddress(text)) {
 					textView.setTextColor(Color.GREEN);
 					addrType = AddrType.IP_ONLY;
+				} else if (subnet6.validateIPv6Address(text)) {
+					textView.setTextColor(Color.GREEN);
+					addrType = AddrType.IPV6;
 				} else {
-				   	textView.setTextColor(Color.RED);
+					textView.setTextColor(Color.RED);
 					addrType = AddrType.INVALID;
-			   	}
+				}
 			}
 		});
 
 		if (savedInstanceState != null) { // restore saved state
 			String ipAddr = savedInstanceState.getString("IPAddr");
 			editText.setText(ipAddr);
-			validateAndCalculateSubnet(ipAddr);
+			calculateSubnet(ipAddr);
 		} else { // get the last IP/mask used and insert in editText
 			SharedPreferences sharedPref = this.getPreferences(MODE_PRIVATE);
 			String ipAddr = sharedPref.getString(getString(R.string.savedIPv4), "");
@@ -167,7 +173,7 @@ public class IPvXActivity extends Activity {
 
 		String ipAddr = savedInstanceState.getString("IPAddr");
 		editText.setText(ipAddr);
-		validateAndCalculateSubnet(ipAddr);
+		calculateSubnet(ipAddr);
 	}
 
 	// use the keyboard enter key to start the subnetting process
@@ -197,7 +203,7 @@ public class IPvXActivity extends Activity {
 	{
 		final String IpAndMask = editText.getText().toString();
 		saveIP(IpAndMask);
-		validateAndCalculateSubnet(IpAndMask);
+		calculateSubnet(IpAndMask);
 	}
 
 	// save the IP/mask to the prefs file
@@ -212,7 +218,7 @@ public class IPvXActivity extends Activity {
 	// The IP and netmask should already be validated. We are checking for
 	// a valid type of address notation. You are allowed
 	// to enter an IP only, this will assumed to be /32
-	public void validateAndCalculateSubnet(final String ipAddr)
+	public void calculateSubnet(final String ipAddr)
 	{
 		switch (addrType) {
 			case CIDR:
@@ -230,6 +236,9 @@ public class IPvXActivity extends Activity {
 			case RESERVED:
 				displayReservedError();
 				return;
+			case IPV6:
+				subnet6.calculateSubnetIPv6(ipAddr);
+				break;
 			case INVALID:
 			default:
 				displayError();

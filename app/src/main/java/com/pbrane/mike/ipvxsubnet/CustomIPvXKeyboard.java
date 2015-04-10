@@ -26,18 +26,28 @@ class CustomIPvXKeyboard implements android.content.DialogInterface.OnClickListe
 
     private KeyboardView keyboardView;
     private Activity hostActivity;
+	private Keyboard ipv4Keyboard;
+	private Keyboard ipv6Keyboard;
+	private int keyboardState = R.integer.ipv4_mode;
 
-    public CustomIPvXKeyboard(Activity host, int viewid, int layoutid) {
+    public CustomIPvXKeyboard(Activity host, int viewid, final int layoutid) {
         hostActivity = host;
+		ipv4Keyboard = new Keyboard(hostActivity, layoutid, R.integer.ipv4_mode);
+		ipv6Keyboard = new Keyboard(hostActivity, layoutid, R.integer.ipv6_mode);
         keyboardView = (KeyboardView) hostActivity.findViewById(viewid);
-        keyboardView.setKeyboard(new Keyboard(hostActivity, layoutid));
+        keyboardView.setKeyboard(ipv4Keyboard);
+
         keyboardView.setPreviewEnabled(false); // do not show preview balloons
 
 		OnKeyboardActionListener onKeyboardActionListener = new OnKeyboardActionListener() {
 
 			// add special keys
 			public final static int CodeDelete = -5; // Keyboard.KEYCODE_DELETE
-			public final static int CodeHex = 55000; // used to switch to hex input mode
+			public final static int CodeHex = 55000; // used to switch between ipv4|ipv6 input mode
+			public final static int CodeDColon = 55001; // double colon ::
+			public final static int CodeSlash128 = 55002; // slash 128 /128
+			public final static int CodeSlash64 = 55003; // slash 64 /64
+			public final static int CodeBlank = 55004; // blank key
 
 			@Override
 			public void onKey(int primaryCode, int[] keyCodes) {
@@ -60,10 +70,32 @@ class CustomIPvXKeyboard implements android.content.DialogInterface.OnClickListe
 						editable.delete(start - 1, start);
 					}
 				} else if (primaryCode == CodeHex) {
-					Log.i("CustomIPvXKeyboard", "Pressed CodeHex button: " + primaryCode);
+					if (keyboardView != null) {
+						if (keyboardState == R.integer.ipv4_mode) {
+							if (ipv6Keyboard == null) {
+								ipv6Keyboard = new Keyboard(hostActivity, layoutid, R.integer.ipv6_mode);
+							}
+							keyboardView.setKeyboard(ipv6Keyboard);
+							keyboardState = R.integer.ipv6_mode;
+						} else {
+							if (ipv4Keyboard == null) {
+								ipv4Keyboard = new Keyboard(hostActivity, layoutid, R.integer.ipv4_mode);
+							}
+							keyboardView.setKeyboard(ipv4Keyboard);
+							keyboardState = R.integer.ipv4_mode;
+						}
+					}
 				} else if (primaryCode == Keyboard.KEYCODE_DONE) {
 					// We need to send the DONE to the _host_ activity to process the event
 					hostActivity.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
+				} else if (primaryCode == CodeDColon) {
+					editable.insert(start, "::");
+				} else if (primaryCode == CodeSlash128) {
+					editable.insert(start, "/128");
+				} else if (primaryCode == CodeSlash64) {
+					editable.insert(start, "/64");
+				} else if (primaryCode == CodeBlank) {
+					Log.i("CustomIPvXKeyboard", "Pressed a blank key");
 				} else { // insert character
 					editable.insert(start, Character.toString((char) primaryCode));
 				}

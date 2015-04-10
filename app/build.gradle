@@ -23,14 +23,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
-//            applicationVariants.all { variant ->
-//                variant.outputs.each { output ->
-//                    def date = new Date();
-//                    def formattedDate = date.format('yyyyMMdd')
-//                    output.outputFile = new File(output.outputFile.parent,
-//                            output.outputFile.name.replace("-release", "-" + formattedDate))
-//                }
-//            }
         }
     }
     productFlavors {
