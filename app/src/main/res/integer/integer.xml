@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Resources>
+    <integer name="ipv4_mode">0</integer>
+    <integer name="ipv6_mode">1</integer>
+</Resources>
