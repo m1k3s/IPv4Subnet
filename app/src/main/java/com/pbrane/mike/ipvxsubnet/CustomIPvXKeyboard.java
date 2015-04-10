@@ -32,11 +32,8 @@ class CustomIPvXKeyboard implements android.content.DialogInterface.OnClickListe
         keyboardView.setKeyboard(new Keyboard(hostActivity, layoutid));
         keyboardView.setPreviewEnabled(false); // do not show preview balloons
 
-		OnKeyboardActionListener onKeyboardActionListener = new OnKeyboardActionListener() {
-
-			// add special keys
-			public final static int CodeDelete = -5; // Keyboard.KEYCODE_DELETE
-
+		OnKeyboardActionListener onKeyboardActionListener = new OnKeyboardActionListener()
+		{
 			@Override
 			public void onKey(int primaryCode, int[] keyCodes) {
 				View focusCurrent = hostActivity.getWindow().getCurrentFocus();
@@ -53,7 +50,7 @@ class CustomIPvXKeyboard implements android.content.DialogInterface.OnClickListe
 					editable.delete(start, end);
 				}
 				// Apply the key to the edittext
-				if (primaryCode == CodeDelete) {
+				if (primaryCode == Keyboard.KEYCODE_DELETE) {
 					if (editable != null && start > 0) {
 						editable.delete(start - 1, start);
 					}
