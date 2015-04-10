@@ -188,10 +188,10 @@ public class IPvXActivity extends Activity {
 		customIPvXKeyboard.hideCustomKeyboard();
 	}
 
-	public void ShowSoftKeyboard(View view)
-	{
-		customIPvXKeyboard.showCustomKeyboard(view);
-	}
+//	public void ShowSoftKeyboard(View view)
+//	{
+//		customIPvXKeyboard.showCustomKeyboard(view);
+//	}
 
 	public void processEntry()
 	{
@@ -214,15 +214,16 @@ public class IPvXActivity extends Activity {
 	// to enter an IP only, this will assumed to be /32
 	public void validateAndCalculateSubnet(final String ipAddr)
 	{
+		boolean result;
 		switch (addrType) {
 			case CIDR:
-				subnet4.calculateSubnetCIDR(ipAddr);
+				result = subnet4.calculateSubnetCIDR(ipAddr);
 				break;
 			case IP_NETMASK:
-				subnet4.calculateSubnetCIDR(subnet4.convertToCIDR(ipAddr));
+				result = subnet4.calculateSubnetCIDR(subnet4.convertToCIDR(ipAddr));
 				break;
 			case IP_ONLY:
-				subnet4.calculateSubnetCIDR(ipAddr + "/32"); // assume /32
+				result = subnet4.calculateSubnetCIDR(ipAddr + "/32"); // assume /32
 				break;
 			case MULTICAST:
 				displayMulticastError();
@@ -235,16 +236,20 @@ public class IPvXActivity extends Activity {
 				displayError();
 				return;
 		}
-		displayResults();
+		if (result) {
+			displayResults();
+		} else {
+			displayErrorMessage("Some has gone horribly wrong! I'm pretty sure it was YOUR fault.");
+		}
 	}
 
 	// 'Clr' button callback
-    public void on_clr(View view)
-    {
-		editText.setText("");
-		editText.setHint(R.string.ip_hint);
-		ShowSoftKeyboard(view);
-    }
+//    public void on_clr(View view)
+//    {
+//		editText.setText("");
+//		editText.setHint(R.string.ip_hint);
+//		ShowSoftKeyboard(view);
+//    }
 
 	protected void displayLogo()
 	{
@@ -282,6 +287,13 @@ public class IPvXActivity extends Activity {
 	public void displayError()
 	{
 		String str = "<font color=#FF0000><b>ERROR: Invalid IP Address or Mask! (How did you do that?)</b></font>\n";
+		textView.setText("");
+		textView.append(Html.fromHtml(str));
+	}
+
+	public void displayErrorMessage(String errorMsg)
+	{
+		String str = "<font color=#FF0000><b>ERROR: "+ errorMsg + "</b></font>\n";
 		textView.setText("");
 		textView.append(Html.fromHtml(str));
 	}

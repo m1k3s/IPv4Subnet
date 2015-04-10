@@ -57,6 +57,9 @@ class CustomIPvXKeyboard implements android.content.DialogInterface.OnClickListe
 				} else if (primaryCode == Keyboard.KEYCODE_DONE) {
 					// We need to send the DONE to the _host_ activity to process the event
 					hostActivity.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
+				} else if (primaryCode == Keyboard.KEYCODE_ALT) {
+					edittext.setText("");
+					edittext.setHint(R.string.ip_hint);
 				} else { // insert character
 					editable.insert(start, Character.toString((char) primaryCode));
 				}

@@ -30,11 +30,18 @@ public class CalculateSubnetIPv4 {
 	private int available_subnets;
 	private String[] ranges;
 
-    public void calculateSubnetCIDR(String ipAddr_mask)
+    public boolean calculateSubnetCIDR(String ipAddr_mask)
     {
         String []tmp = ipAddr_mask.split("/"); // split the IP and mask bits
+		if (tmp.length < 2) {
+			return false;
+		}
         ipAddr = tmp[0];
-        network_bits = Integer.parseInt(tmp[1]);
+		try {
+			network_bits = Integer.parseInt(tmp[1]);
+		} catch (NumberFormatException e) {
+			return false;
+		}
         host_bits = IPV4_ADDR_BITS - network_bits;
         binary_mask = maskBitsToBinary(network_bits); // netmask as binary string
 
@@ -53,6 +60,7 @@ public class CalculateSubnetIPv4 {
 		} else { // calculate just the host network ranges
 			ranges = calculateRangeOfHostNetwork();
 		}
+		return true;
     }
 
     public boolean validateCIDR(String cidr)
@@ -74,6 +82,9 @@ public class CalculateSubnetIPv4 {
 	public String convertToCIDR(String ipAndMask)
 	{
 		String[] tmp = ipAndMask.split("\\s+");
+		if (tmp.length != 2) {
+			return ipAndMask;
+		}
 		long net_bits = Long.bitCount(Long.parseLong(ipToDecimal(tmp[1])));
 		return tmp[0] + "/" + Long.toString(net_bits);
 	}
