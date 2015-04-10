@@ -8,9 +8,9 @@ import java.util.regex.Pattern;
 
 public class CalculateSubnetIPv4 {
 
-	private static final int CLASS_A_SIZE = 16777216;
-	private static final int CLASS_B_SIZE = 65536;
-	private static final int CLASS_C_SIZE = 256;
+	private static final int CLASS_A_HOSTS = 16777216;
+	private static final int CLASS_B_HOSTS = 65536;
+	private static final int CLASS_C_HOSTS = 256;
 	private static final int IPV4_ADDR_BITS = 32;
     private static final String IP_ADDRESS = "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])";
     private static final String CIDR = IP_ADDRESS + "(/([0-9]|[1-2][0-9]|3[0-2]))";
@@ -340,12 +340,12 @@ public class CalculateSubnetIPv4 {
 
 	public int calcNetworksInSubnet() {
 		int nets;
-		if (hosts_per_subnet > CLASS_B_SIZE) {
-			nets = (int)(CLASS_A_SIZE / hosts_per_subnet);
-		} else if (hosts_per_subnet > CLASS_C_SIZE && hosts_per_subnet <= CLASS_B_SIZE) {
-			nets = (int)(CLASS_B_SIZE / hosts_per_subnet);
+		if (hosts_per_subnet > CLASS_B_HOSTS) {
+			nets = (int)(CLASS_A_HOSTS / hosts_per_subnet);
+		} else if (hosts_per_subnet > CLASS_C_HOSTS && hosts_per_subnet <= CLASS_B_HOSTS) {
+			nets = (int)(CLASS_B_HOSTS / hosts_per_subnet);
 		} else { // Class C size network
-			nets = (int)(CLASS_C_SIZE / hosts_per_subnet);
+			nets = (int)(CLASS_C_HOSTS / hosts_per_subnet);
 		}
 		return nets <= 0 ? 1 : nets;
 	}

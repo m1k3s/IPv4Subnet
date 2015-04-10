@@ -27,7 +27,7 @@ public class IPvXActivity extends Activity {
 	private EditText editText;
 	private CustomIPvXKeyboard customIPvXKeyboard;
 	private enum AddrType { CIDR, IP_NETMASK, IP_ONLY, MULTICAST, RESERVED, INVALID }
-	private AddrType addrType;
+	private AddrType addrType = AddrType.INVALID; // initialize to invalid
 
 	@Override
     protected void onCreate(Bundle savedInstanceState)
@@ -75,7 +75,7 @@ public class IPvXActivity extends Activity {
 					addrType = AddrType.INVALID;
 					return;
 				}
-				// We don't subnet4 Class D or E
+				// We don't subnet Class D or E
 				if (subnet4.isClassD(text)) {
 					textView.setTextColor(Color.RED);
 					addrType = AddrType.MULTICAST;
@@ -188,11 +188,6 @@ public class IPvXActivity extends Activity {
 		customIPvXKeyboard.hideCustomKeyboard();
 	}
 
-//	public void ShowSoftKeyboard(View view)
-//	{
-//		customIPvXKeyboard.showCustomKeyboard(view);
-//	}
-
 	public void processEntry()
 	{
 		final String IpAndMask = editText.getText().toString();
@@ -242,14 +237,6 @@ public class IPvXActivity extends Activity {
 			displayErrorMessage("Some has gone horribly wrong! I'm pretty sure it was YOUR fault.");
 		}
 	}
-
-	// 'Clr' button callback
-//    public void on_clr(View view)
-//    {
-//		editText.setText("");
-//		editText.setHint(R.string.ip_hint);
-//		ShowSoftKeyboard(view);
-//    }
 
 	protected void displayLogo()
 	{
