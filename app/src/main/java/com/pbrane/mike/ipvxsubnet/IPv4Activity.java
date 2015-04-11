@@ -19,13 +19,13 @@ import android.widget.TextView;
 import java.text.NumberFormat;
 
 
-public class IPvXActivity extends Activity {
+public class IPv4Activity extends Activity {
 
 	public static final int MAX_RANGES = 32; // maximum count of network ranges to display
     private CalculateSubnetIPv4 subnet4 = new CalculateSubnetIPv4();
     private TextView textView;
 	private EditText editText;
-	private CustomIPvXKeyboard customIPvXKeyboard;
+	private CustomIPv4Keyboard customIPv4Keyboard;
 	private enum AddrType { CIDR, IP_NETMASK, IP_ONLY, MULTICAST, RESERVED, INVALID }
 	private AddrType addrType = AddrType.INVALID; // initialize to invalid
 
@@ -45,9 +45,9 @@ public class IPvXActivity extends Activity {
 		editText = (EditText) findViewById(R.id.editText);
 
 		// initialize the instance variable customIPvXKeyboard
-		customIPvXKeyboard = new CustomIPvXKeyboard(this, R.id.keyboardview, R.xml.keyboard);
+		customIPv4Keyboard = new CustomIPv4Keyboard(this, R.id.keyboardview, R.xml.keyboard);
 		// register the edittext
-		customIPvXKeyboard.registerEditText(R.id.editText);
+		customIPv4Keyboard.registerEditText(R.id.editText);
 
 		editText.setKeyListener(new DialerKeyListener() {
 			@Override
@@ -190,7 +190,7 @@ public class IPvXActivity extends Activity {
 
 	public void HideSoftKeyboard()
 	{
-		customIPvXKeyboard.hideCustomKeyboard();
+		customIPv4Keyboard.hideCustomKeyboard();
 	}
 
 	public void processEntry()
@@ -245,7 +245,7 @@ public class IPvXActivity extends Activity {
 
 	protected void displayLogo()
 	{
-		String logoString = "<small><font color=#4169E1><b>IPvX</font>"
+		String logoString = "<small><font color=#4169E1><b>IPv4</font>"
 				+ "<font color=#00CC00>Subnet\u00A0-\u00A0</b></font>"
 				+ "<font color=#C5C5C5><u><b>Michael</b></u></font>"
 				+ "<font color=#DF0000><u>Sheppard</u></font>"
