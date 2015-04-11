@@ -21,12 +21,12 @@ import android.widget.EditText;
 // custom keyboardview class based on SimplicityApks tutorial on XDA
 // and Maarten Pennings CustomKeyboard class code.
 
-class CustomIPvXKeyboard implements android.content.DialogInterface.OnClickListener {
+class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListener {
 
     private KeyboardView keyboardView;
     private Activity hostActivity;
 
-    public CustomIPvXKeyboard(Activity host, int viewID, int layoutID) {
+    public CustomIPv4Keyboard(Activity host, int viewID, int layoutID) {
         hostActivity = host;
         keyboardView = (KeyboardView) hostActivity.findViewById(viewID);
         keyboardView.setKeyboard(new Keyboard(hostActivity, layoutID));
@@ -60,7 +60,7 @@ class CustomIPvXKeyboard implements android.content.DialogInterface.OnClickListe
 				} else if (primaryCode == Keyboard.KEYCODE_ALT) { // clear the EditText andTextView
 					edittext.setText("");
 					edittext.setHint(R.string.ip_hint);
-					((IPvXActivity)hostActivity).getTextView().setText("");
+					((IPv4Activity)hostActivity).getTextView().setText("");
 				} else { // insert character
 					editable.insert(start, Character.toString((char) primaryCode));
 				}

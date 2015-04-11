@@ -5,5 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
-    android:keyBackground="@xml/keyboard_key"
+    android:keyPreviewLayout="@layout/preview"
+    android:keyBackground="@drawable/keyboard_key"
+    android:keyTextColor="@android:color/black"
     />
