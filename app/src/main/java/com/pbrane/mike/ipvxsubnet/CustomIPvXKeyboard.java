@@ -26,10 +26,10 @@ class CustomIPvXKeyboard implements android.content.DialogInterface.OnClickListe
     private KeyboardView keyboardView;
     private Activity hostActivity;
 
-    public CustomIPvXKeyboard(Activity host, int viewid, int layoutid) {
+    public CustomIPvXKeyboard(Activity host, int viewID, int layoutID) {
         hostActivity = host;
-        keyboardView = (KeyboardView) hostActivity.findViewById(viewid);
-        keyboardView.setKeyboard(new Keyboard(hostActivity, layoutid));
+        keyboardView = (KeyboardView) hostActivity.findViewById(viewID);
+        keyboardView.setKeyboard(new Keyboard(hostActivity, layoutID));
         keyboardView.setPreviewEnabled(false); // do not show preview balloons
 
 		OnKeyboardActionListener onKeyboardActionListener = new OnKeyboardActionListener()
@@ -197,7 +197,7 @@ class CustomIPvXKeyboard implements android.content.DialogInterface.OnClickListe
         };
         edittext.setOnTouchListener(otl); 
     }
-	
+
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
 	}
