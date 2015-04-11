@@ -150,6 +150,11 @@ public class IPvXActivity extends Activity {
 		@Override
 		final public void onTextChanged(CharSequence s, int start, int before, int count) {}
 	}
+	
+	public TextView getTextView()
+	{
+		return textView;
+	}
 
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle savedInstanceState)

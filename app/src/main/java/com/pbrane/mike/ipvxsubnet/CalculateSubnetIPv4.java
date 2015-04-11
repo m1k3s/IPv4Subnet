@@ -33,7 +33,7 @@ public class CalculateSubnetIPv4 {
     public boolean calculateSubnetCIDR(String ipAddr_mask)
     {
         String []tmp = ipAddr_mask.split("/"); // split the IP and mask bits
-		if (tmp.length < 2) {
+		if (tmp.length < 2) {  // make sure the split was successful
 			return false;
 		}
         ipAddr = tmp[0];
@@ -47,11 +47,12 @@ public class CalculateSubnetIPv4 {
 
         hosts_per_subnet = calcHostsPerSubnet(); // number of addresses (hosts) in subnet
         usable_hosts = calcUsableHosts(); // number of usable host IPs in network
-        network = bitwiseAnd(ipAddr, splitIntoDecimalOctets(binary_mask)); // network IP
 
+        network = bitwiseAnd(ipAddr, splitIntoDecimalOctets(binary_mask)); // network IP
         min_host_addr = minimumHostAddress(); // first host IP
         broadcast = broadcast(ipAddr, splitIntoDecimalOctets(binary_mask)); // broadcast IP
         max_host_addr = maximumHostAddress(); // last host IP
+
 		available_subnets = calcAvailableSubnets(); // available networks in this subnet
 
 		// calculate all subnet ranges if the number of subnets is less than MAX_RANGES
@@ -156,9 +157,9 @@ public class CalculateSubnetIPv4 {
 
 	//
 	// Private IP ranges:
-	// Class A: 10.0.0.0 - 10.255.255.255
-	// Class B: 172.16.0.0 - 172.31.255.255
-	// Class C: 192.168.0.0 - 192.168.255.255
+	// Class A: 10.0.0.0 - 10.255.255.255      (10.0.0.0/8)
+	// Class B: 172.16.0.0 - 172.31.255.255    (172.16.0.0/12)
+	// Class C: 192.168.0.0 - 192.168.255.255  (192.168.0.0/16)
 	//
 	public boolean isPrivateIP(String ip)
 	{
@@ -244,8 +245,7 @@ public class CalculateSubnetIPv4 {
 
 	public String getNextNetwork(String base, int incremental_value)
 	{
-		String[] net = base.split("[:]"); // split the base network range at the colon
-		String[] octets = net[0].split("[.]"); // split the ip
+		String[] octets = base.split("[.]"); // split the ip
 		if (octets.length < 4) {
 			Log.i("getNextNetwork", "octets.length is less than four!");
 			return "";
@@ -256,8 +256,8 @@ public class CalculateSubnetIPv4 {
 			octets[3] = Integer.toString((incremental_value == hosts_per_subnet - 1) ? 255 : 0);
 			octets[2] = Integer.toString(Integer.parseInt(octets[2]) + (incremental_value / 256));
 		} else if (host_bits > 16 && host_bits <= 24) { // class A
-			int octet3 = net.length > 1 ? Integer.parseInt(net[1].split("[.]")[3]) : Integer.parseInt(octets[3]);
-			int octet2 = net.length > 1 ? Integer.parseInt(net[1].split("[.]")[2]) : Integer.parseInt(octets[2]);
+			int octet3 = Integer.parseInt(octets[3]);
+			int octet2 = Integer.parseInt(octets[2]);
 			octets[3] = Integer.toString(octet3 == 255 ? 0 : 255);
 			octets[2] = Integer.toString(octet2 == 255 ? 0 : 255);
 			octets[1] = Integer.toString(Integer.parseInt(octets[1]) + (incremental_value / 256));
@@ -317,8 +317,6 @@ public class CalculateSubnetIPv4 {
 
 	public String[] calculateRangeOfHostNetwork()
 	{
-//		int nets = (int)(256 / hosts_per_subnet);
-//		nets = nets <= 0 ? 1 : nets;
 		int nets = calcNetworksInSubnet();
 		String[] networks = new String[nets];
 
@@ -344,7 +342,7 @@ public class CalculateSubnetIPv4 {
 			nets = (int)(CLASS_A_HOSTS / hosts_per_subnet);
 		} else if (hosts_per_subnet > CLASS_C_HOSTS && hosts_per_subnet <= CLASS_B_HOSTS) {
 			nets = (int)(CLASS_B_HOSTS / hosts_per_subnet);
-		} else { // Class C size network
+		} else { // hosts_per_subnet <= CLASS_C_HOSTS
 			nets = (int)(CLASS_C_HOSTS / hosts_per_subnet);
 		}
 		return nets <= 0 ? 1 : nets;
