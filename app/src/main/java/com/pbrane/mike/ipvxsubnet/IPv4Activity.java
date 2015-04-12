@@ -21,6 +21,7 @@ import java.text.NumberFormat;
 
 public class IPv4Activity extends Activity {
 
+	private static final String version = "1.0.5";
 	public static final int MAX_RANGES = 32; // maximum count of network ranges to display
     private CalculateSubnetIPv4 subnet4 = new CalculateSubnetIPv4();
     private TextView textView;
@@ -250,7 +251,7 @@ public class IPv4Activity extends Activity {
 				+ "<font color=#C5C5C5><u><b>Michael</b></u></font>"
 				+ "<font color=#DF0000><u>Sheppard</u></font>"
 				+ "<font color=#4169E1>\u00A0-\u00A0<b>2015</b></font>"
-				+ "<font color=#C5C5C5>\u00A0Version 1.0.5</font>\n";
+				+ "<font color=#C5C5C5>\u00A0Version " + version + "</font>\n";
 
 		textView.append("\n");
 		textView.append("--------------------------\n");
