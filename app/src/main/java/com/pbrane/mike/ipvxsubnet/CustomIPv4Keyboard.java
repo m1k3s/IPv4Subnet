@@ -4,12 +4,12 @@ import android.app.Activity;
 //import android.app.AlertDialog;
 //import android.app.Dialog;
 //import android.app.DialogFragment;
-import android.content.Context;
+//import android.content.Context;
 import android.content.DialogInterface;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.inputmethodservice.KeyboardView.OnKeyboardActionListener;
-import android.media.AudioManager;
+//import android.media.AudioManager;
 //import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
@@ -64,7 +64,7 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
 				} else if (primaryCode == Keyboard.KEYCODE_DONE) {
 					// We need to send the DONE to the _host_ activity to process the event
 					hostActivity.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
-				} else if (primaryCode == Keyboard.KEYCODE_ALT) { // clear the EditText andTextView
+				} else if (primaryCode == Keyboard.KEYCODE_ALT) { // clear the EditText and TextView
 					edittext.setText("");
 					edittext.setHint(R.string.ip_hint);
 					((IPv4Activity)hostActivity).getTextView().setText("");
@@ -75,7 +75,7 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
 
 			@Override
 			public void onPress(int primaryCode) {
-				playClick(primaryCode);
+//				playClick(primaryCode);
 			}
 
 			@Override
@@ -211,29 +211,29 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
 	public void onClick(DialogInterface dialog, int which) {
 	}
 
-	private void playClick(int keyCode)
-	{
-		AudioManager am = (AudioManager)hostActivity.getSystemService(Context.AUDIO_SERVICE);
-		// set click volume to system volume
-		int vol = am.getStreamVolume(AudioManager.STREAM_SYSTEM);
-
-		if (vol > 0) {
-			switch (keyCode) {
-				case 32:
-					am.playSoundEffect(AudioManager.FX_KEYPRESS_SPACEBAR, vol);
-					break;
-				case Keyboard.KEYCODE_DONE:
-				case 10:
-					am.playSoundEffect(AudioManager.FX_KEYPRESS_RETURN, vol);
-					break;
-				case Keyboard.KEYCODE_DELETE:
-					am.playSoundEffect(AudioManager.FX_KEYPRESS_DELETE, vol);
-					break;
-				default:
-					am.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, vol);
-			}
-		}
-	}
+//	private void playClick(int keyCode)
+//	{
+//		AudioManager am = (AudioManager)hostActivity.getSystemService(Context.AUDIO_SERVICE);
+//		// set click volume to system volume
+//		int vol = am.getStreamVolume(AudioManager.STREAM_SYSTEM);
+//
+//		if (vol > 0) {
+//			switch (keyCode) {
+//				case 32:
+//					am.playSoundEffect(AudioManager.FX_KEYPRESS_SPACEBAR, vol);
+//					break;
+//				case Keyboard.KEYCODE_DONE:
+//				case 10:
+//					am.playSoundEffect(AudioManager.FX_KEYPRESS_RETURN, vol);
+//					break;
+//				case Keyboard.KEYCODE_DELETE:
+//					am.playSoundEffect(AudioManager.FX_KEYPRESS_DELETE, vol);
+//					break;
+//				default:
+//					am.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, vol);
+//			}
+//		}
+//	}
 
 //	public void setSoundPreference()
 //	{
