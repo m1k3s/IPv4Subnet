@@ -18,7 +18,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
-// custom keyboardview class based on SimplicityApks tutorial on XDA
+// custom keyboard class based on SimplicityApks tutorial on XDA
 // and Maarten Pennings CustomKeyboard class code.
 
 class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListener {
@@ -95,7 +95,7 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
 			}
 		};
 		keyboardView.setOnKeyboardActionListener(onKeyboardActionListener);
-        // Hide the default keyboardview initially
+        // Hide the default keyboard initially
         hostActivity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
@@ -103,7 +103,7 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
         return keyboardView.getVisibility() == View.VISIBLE;
     }
 
-    // make the CustomKeyboard visible, and hide the system keyboardview for view.
+    // make the CustomKeyboard visible, and hide the system keyboard for view.
     public void showCustomKeyboard(View v  ) {
         keyboardView.setVisibility(View.VISIBLE);
         keyboardView.setEnabled(true);
@@ -119,9 +119,9 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
 
     public void registerEditText(int resid) {
         final EditText edittext= (EditText) hostActivity.findViewById(resid);
-        // set the custom keyboardview visible
+        // set the custom keyboard visible
         edittext.setOnFocusChangeListener(new OnFocusChangeListener() {
-            // NOTE By setting the on focus listener, we can show the custom keyboardview when the edit
+            // NOTE By setting the on focus listener, we can show the custom keyboard when the edit
             // box gets focus, but also hide it when the edit box loses focus
             @Override 
             public void onFocusChange(View v, boolean hasFocus) {
@@ -133,8 +133,8 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
             }
         });
         edittext.setOnClickListener(new OnClickListener() {
-            // NOTE By setting the on click listener, we can show the custom keyboardview again,
-            // by tapping on an edit box that already had focus (but that had the keyboardview hidden).
+            // NOTE By setting the on click listener, we can show the custom keyboard again,
+            // by tapping on an edit box that already had focus (but that had the keyboard hidden).
             @Override 
             public void onClick(View v) {
                 showCustomKeyboard(v);
@@ -145,7 +145,7 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
             public boolean onTouch(View v, MotionEvent event) {
                 EditText edittext = (EditText) v;
                 int inType = edittext.getInputType();       // backup the input type
-                edittext.setInputType(InputType.TYPE_NULL); // disable standard keyboardview
+                edittext.setInputType(InputType.TYPE_NULL); // disable standard keyboard
                 edittext.onTouchEvent(event);               // call native handler
                 edittext.setInputType(inType);              // restore input type
                 edittext.setCursorVisible(true);

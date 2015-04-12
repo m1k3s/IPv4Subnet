@@ -175,7 +175,7 @@ public class IPv4Activity extends Activity {
 		validateAndCalculateSubnet(ipAddr);
 	}
 
-	// use the keyboardview enter key to start the subnetting process
+	// use the keyboard enter key to start the subnetting process
 	@Override
 	public boolean dispatchKeyEvent(@NonNull KeyEvent e)
 	{
