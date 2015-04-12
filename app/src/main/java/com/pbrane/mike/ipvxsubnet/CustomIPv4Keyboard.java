@@ -1,16 +1,21 @@
 package com.pbrane.mike.ipvxsubnet;
 
 import android.app.Activity;
-import android.content.Context;
+//import android.app.AlertDialog;
+//import android.app.Dialog;
+//import android.app.DialogFragment;
+//import android.content.Context;
 import android.content.DialogInterface;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.inputmethodservice.KeyboardView.OnKeyboardActionListener;
-import android.media.AudioManager;
+//import android.media.AudioManager;
+//import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.Layout;
 import android.view.KeyEvent;
+//import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -70,7 +75,7 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
 
 			@Override
 			public void onPress(int primaryCode) {
-				playClick(primaryCode);
+//				playClick(primaryCode);
 			}
 
 			@Override
@@ -206,27 +211,58 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
 	public void onClick(DialogInterface dialog, int which) {
 	}
 
-	private void playClick(int keyCode)
-	{
-		AudioManager am = (AudioManager)hostActivity.getSystemService(Context.AUDIO_SERVICE);
-		// set click volume to system volume
-		int vol = am.getStreamVolume(AudioManager.STREAM_SYSTEM);
+//	private void playClick(int keyCode)
+//	{
+//		AudioManager am = (AudioManager)hostActivity.getSystemService(Context.AUDIO_SERVICE);
+//		// set click volume to system volume
+//		int vol = am.getStreamVolume(AudioManager.STREAM_SYSTEM);
+//
+//		if (vol > 0) {
+//			switch (keyCode) {
+//				case 32:
+//					am.playSoundEffect(AudioManager.FX_KEYPRESS_SPACEBAR, vol);
+//					break;
+//				case Keyboard.KEYCODE_DONE:
+//				case 10:
+//					am.playSoundEffect(AudioManager.FX_KEYPRESS_RETURN, vol);
+//					break;
+//				case Keyboard.KEYCODE_DELETE:
+//					am.playSoundEffect(AudioManager.FX_KEYPRESS_DELETE, vol);
+//					break;
+//				default:
+//					am.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, vol);
+//			}
+//		}
+//	}
 
-		if (vol > 0) {
-			switch (keyCode) {
-				case 32:
-					am.playSoundEffect(AudioManager.FX_KEYPRESS_SPACEBAR, vol);
-					break;
-				case Keyboard.KEYCODE_DONE:
-				case 10:
-					am.playSoundEffect(AudioManager.FX_KEYPRESS_RETURN, vol);
-					break;
-				case Keyboard.KEYCODE_DELETE:
-					am.playSoundEffect(AudioManager.FX_KEYPRESS_DELETE, vol);
-					break;
-				default:
-					am.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, vol);
-			}
-		}
-	}
+//	public static class KeyboardSoundDialogFragment extends DialogFragment {
+//
+//		private static boolean enabled;
+//
+//		@Override
+//		public Dialog onCreateDialog(Bundle savedInstanceState) {
+//			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+//			final View checkBoxView = getActivity().getLayoutInflater().inflate(R.layout.checkbox, null);
+//
+//			builder.setView(checkBoxView)
+//			.setMessage(R.string.click_sound)
+//			.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+//				public void onClick(DialogInterface dialog, int id) {
+//					// check the checkbox state and set boolean accordingly
+//					enabled = checkBoxView.isEnabled();
+//				}
+//			})
+//			.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//				public void onClick(DialogInterface dialog, int id) {
+//					// User cancelled the dialog, just exit
+//				}
+//			});
+//			return builder.create();
+//		}
+//
+//		public static boolean getEnabled()
+//		{
+//			return enabled;
+//		}
+//	}
 }
