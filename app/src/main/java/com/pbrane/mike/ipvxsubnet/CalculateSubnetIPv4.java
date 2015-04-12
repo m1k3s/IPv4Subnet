@@ -217,55 +217,35 @@ public class CalculateSubnetIPv4 {
 	public boolean isClassA(String ip)
 	{
 		String[] octets = ip.split("[.]");
-		if (octets.length > 0) {
-			return (octetToBinary(octets[0]).startsWith("0"));
-		}
-//		return octetToBinary(ip.split("[.]")[0]).startsWith("0");
-		return false;
+		return octets.length > 0 && (octetToBinary(octets[0]).startsWith("0"));
 	}
 
 	// Class B 128.0.0.0 to 191.255.255.255, 172.16.0.0 - 172.31.255.255 are private
 	public boolean isClassB(String ip)
 	{
 		String[] octets = ip.split("[.]");
-		if (octets.length > 0) {
-			return (octetToBinary(octets[0]).startsWith("10"));
-		}
-//		return octetToBinary(ip.split("[.]")[0]).startsWith("10");
-		return false;
+		return octets.length > 0 && (octetToBinary(octets[0]).startsWith("10"));
 	}
 
 	// Class C 192.0.0.0 to 223.255.255.255, 192.168.0.0 - 192.168.255.255 are private
 	public boolean isClassC(String ip)
 	{
 		String[] octets = ip.split("[.]");
-		if (octets.length > 0) {
-			return (octetToBinary(octets[0]).startsWith("110"));
-		}
-//		return octetToBinary(ip.split("[.]")[0]).startsWith("110");
-		return false;
+		return octets.length > 0 && (octetToBinary(octets[0]).startsWith("110"));
 	}
 
 	// Class D is a multicast network 224.0 0 0 to 239.255.255.255
 	public boolean isClassD(String ip)
 	{
 		String[] octets = ip.split("[.]");
-		if (octets.length > 0) {
-			return (octetToBinary(octets[0]).startsWith("1110"));
-		}
-//		return octetToBinary(ip.split("[.]")[0]).startsWith("1110");
-		return false;
+		return octets.length > 0 && (octetToBinary(octets[0]).startsWith("1110"));
 	}
 
 	// class E is a reserved network 240.0.0.0 255.255.255.255
 	public boolean isClassE(String ip)
 	{
 		String[] octets = ip.split("[.]");
-		if (octets.length > 0) {
-			return (octetToBinary(octets[0]).startsWith("1111"));
-		}
-//		return octetToBinary(ip.split("[.]")[0]).startsWith("1111");
-		return false;
+		return octets.length > 0 && (octetToBinary(octets[0]).startsWith("1111"));
 	}
 
 	// Calculates subnets from a valid mask. _Not_ CIDR or VLSM
