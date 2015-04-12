@@ -1,6 +1,6 @@
 package com.pbrane.mike.ipvxsubnet;
 
-import android.util.Log;
+//import android.util.Log;
 
 //import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -277,8 +277,8 @@ public class CalculateSubnetIPv4 {
 	{
 		String[] octets = base.split("[.]"); // split the ip
 		if (octets.length < 4) {
-			Log.i("getNextNetwork", "octets.length is less than four!");
-			return "";
+//			Log.i("getNextNetwork", "octets.length is less than four!");
+			return base;
 		}
 		if (host_bits <= 8) { // class C
 			octets[3] = Integer.toString(Integer.parseInt(octets[3]) + incremental_value);
@@ -299,8 +299,8 @@ public class CalculateSubnetIPv4 {
 	{
 		String[] octets = base.split("[.]");
 		if (octets.length < 4) {
-			Log.i("getBaseNetwork", "octets.length is less than four!");
-			return "";
+//			Log.i("getBaseNetwork", "octets.length is less than four!");
+			return base;
 		}
 		switch (getNetworkClass(base)) {
 			case "A":
