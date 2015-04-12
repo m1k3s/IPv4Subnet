@@ -86,7 +86,12 @@ public class CalculateSubnetIPv4 {
 		if (tmp.length != 2) {
 			return ipAndMask;
 		}
-		long net_bits = Long.bitCount(Long.parseLong(ipToDecimal(tmp[1])));
+		long net_bits;
+		try {
+			net_bits = Long.bitCount(Long.parseLong(ipToDecimal(tmp[1])));
+		} catch (NumberFormatException e) {
+			return ipAndMask;
+		}
 		return tmp[0] + "/" + Long.toString(net_bits);
 	}
 
@@ -163,27 +168,47 @@ public class CalculateSubnetIPv4 {
 	//
 	public boolean isPrivateIP(String ip)
 	{
-		long ipDec = Long.parseLong(ipToDecimal(ip));
-		long ipLow = 0;
-		long ipHigh = 0;
+		long ipDec, ipLow = 0, ipHigh = 0;
+		try {
+			ipDec = Long.parseLong(ipToDecimal(ip));
+		} catch (NumberFormatException e) {
+			return false;
+		}
 		if (isClassA(ip)) {
-			ipLow = Long.parseLong(ipToDecimal("10.0.0.0"));
-			ipHigh = Long.parseLong(ipToDecimal("10.255.255.255"));
+			try {
+				ipLow = Long.parseLong(ipToDecimal("10.0.0.0"));
+				ipHigh = Long.parseLong(ipToDecimal("10.255.255.255"));
+			} catch (NumberFormatException e) {
+				return false;
+			}
 		} else if (isClassB(ip)) {
-			ipLow = Long.parseLong(ipToDecimal("172.16.0.0"));
-			ipHigh = Long.parseLong(ipToDecimal("172.31.255.255"));
+			try {
+				ipLow = Long.parseLong(ipToDecimal("172.16.0.0"));
+				ipHigh = Long.parseLong(ipToDecimal("172.31.255.255"));
+			} catch (NumberFormatException e) {
+				return false;
+			}
 		} else if (isClassC(ip)) {
-			ipLow = Long.parseLong(ipToDecimal("192.168.0.0"));
-			ipHigh = Long.parseLong(ipToDecimal("192.168.255.255"));
+			try {
+				ipLow = Long.parseLong(ipToDecimal("192.168.0.0"));
+				ipHigh = Long.parseLong(ipToDecimal("192.168.255.255"));
+			} catch (NumberFormatException e) {
+				return false;
+			}
 		}
 		return ipDec >= ipLow && ipDec <= ipHigh;
 	}
 
 	public boolean isLoopBackOrDiagIP(String ip)
 	{
-		long ipDec = Long.parseLong(ipToDecimal(ip));
-		long ipLow = Long.parseLong(ipToDecimal("127.0.0.0"));
-		long ipHigh = Long.parseLong(ipToDecimal("127.255.255.255"));
+		long ipDec, ipLow, ipHigh;
+		try {
+			ipDec = Long.parseLong(ipToDecimal(ip));
+			ipLow = Long.parseLong(ipToDecimal("127.0.0.0"));
+			ipHigh = Long.parseLong(ipToDecimal("127.255.255.255"));
+		} catch (NumberFormatException e) {
+			return false;
+		}
 		return ipDec >= ipLow && ipDec <= ipHigh;
 	}
 
@@ -191,31 +216,56 @@ public class CalculateSubnetIPv4 {
 	// reserved for loopback and diagnostic functions
 	public boolean isClassA(String ip)
 	{
-		return octetToBinary(ip.split("[.]")[0]).startsWith("0");
+		String[] octets = ip.split("[.]");
+		if (octets.length > 0) {
+			return (octetToBinary(octets[0]).startsWith("0"));
+		}
+//		return octetToBinary(ip.split("[.]")[0]).startsWith("0");
+		return false;
 	}
 
 	// Class B 128.0.0.0 to 191.255.255.255, 172.16.0.0 - 172.31.255.255 are private
 	public boolean isClassB(String ip)
 	{
-		return octetToBinary(ip.split("[.]")[0]).startsWith("10");
+		String[] octets = ip.split("[.]");
+		if (octets.length > 0) {
+			return (octetToBinary(octets[0]).startsWith("10"));
+		}
+//		return octetToBinary(ip.split("[.]")[0]).startsWith("10");
+		return false;
 	}
 
 	// Class C 192.0.0.0 to 223.255.255.255, 192.168.0.0 - 192.168.255.255 are private
 	public boolean isClassC(String ip)
 	{
-		return octetToBinary(ip.split("[.]")[0]).startsWith("110");
+		String[] octets = ip.split("[.]");
+		if (octets.length > 0) {
+			return (octetToBinary(octets[0]).startsWith("110"));
+		}
+//		return octetToBinary(ip.split("[.]")[0]).startsWith("110");
+		return false;
 	}
 
 	// Class D is a multicast network 224.0 0 0 to 239.255.255.255
 	public boolean isClassD(String ip)
 	{
-		return octetToBinary(ip.split("[.]")[0]).startsWith("1110");
+		String[] octets = ip.split("[.]");
+		if (octets.length > 0) {
+			return (octetToBinary(octets[0]).startsWith("1110"));
+		}
+//		return octetToBinary(ip.split("[.]")[0]).startsWith("1110");
+		return false;
 	}
 
 	// class E is a reserved network 240.0.0.0 255.255.255.255
 	public boolean isClassE(String ip)
 	{
-		return octetToBinary(ip.split("[.]")[0]).startsWith("1111");
+		String[] octets = ip.split("[.]");
+		if (octets.length > 0) {
+			return (octetToBinary(octets[0]).startsWith("1111"));
+		}
+//		return octetToBinary(ip.split("[.]")[0]).startsWith("1111");
+		return false;
 	}
 
 	// Calculates subnets from a valid mask. _Not_ CIDR or VLSM

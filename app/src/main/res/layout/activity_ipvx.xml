@@ -51,9 +51,8 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:keyBackground="@drawable/keyboard_key"
+        android:keyTextColor="@android:color/black"
+        android:background="@color/background_material_light"
         />
 
-    <!--android:keyBackground="@color/background_material_light"-->
-    <!--android:keyTextColor="@color/primary_text_default_material_light"-->
-    <!--android:background="@color/background_material_light"-->
 </RelativeLayout>

@@ -1,13 +1,16 @@
 package com.pbrane.mike.ipvxsubnet;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.inputmethodservice.KeyboardView.OnKeyboardActionListener;
+import android.media.AudioManager;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.Layout;
+//import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -20,6 +23,10 @@ import android.widget.EditText;
 
 // custom keyboard class based on SimplicityApks tutorial on XDA
 // and Maarten Pennings CustomKeyboard class code.
+
+//AudioManager am = (AudioManager)getSystemService(AUDIO_SERVICE);
+//float vol = 0.5; //This will be half of the default system sound
+//am.playSoundEffect(AudioManager.FX_KEY_CLICK, vol);
 
 class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListener {
 
@@ -67,7 +74,8 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
 			}
 
 			@Override
-			public void onPress(int arg0) {
+			public void onPress(int primaryCode) {
+				playClick(primaryCode);
 			}
 
 			@Override
@@ -201,5 +209,28 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
 
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
+	}
+
+	private void playClick(int keyCode)
+	{
+		AudioManager am = (AudioManager)hostActivity.getSystemService(Context.AUDIO_SERVICE);
+		int vol = am.getStreamVolume(AudioManager.STREAM_SYSTEM);
+
+		if (vol > 0) {
+			switch (keyCode) {
+				case 32:
+					am.playSoundEffect(AudioManager.FX_KEYPRESS_SPACEBAR, vol);
+					break;
+				case Keyboard.KEYCODE_DONE:
+				case 10:
+					am.playSoundEffect(AudioManager.FX_KEYPRESS_RETURN, vol);
+					break;
+				case Keyboard.KEYCODE_DELETE:
+					am.playSoundEffect(AudioManager.FX_KEYPRESS_DELETE, vol);
+					break;
+				default:
+					am.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, vol);
+			}
+		}
 	}
 }

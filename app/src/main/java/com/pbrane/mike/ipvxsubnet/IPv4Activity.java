@@ -71,7 +71,9 @@ public class IPv4Activity extends Activity {
 		{
 			@Override
 			public void validate(TextView textView, String text) {
-				if (text.isEmpty()) { // nothing to validate
+				// crap check - not valid if empty or doesn't start with a digit
+				if (text.isEmpty() || !Character.isDigit(text.charAt(0))) {
+					textView.setTextColor(Color.RED);
 					addrType = AddrType.INVALID;
 					return;
 				}
@@ -239,7 +241,7 @@ public class IPv4Activity extends Activity {
 		if (result) {
 			displayResults();
 		} else {
-			displayErrorMessage("Some has gone horribly wrong! I'm pretty sure it was YOUR fault.");
+			displayErrorMessage("Something has gone horribly wrong! I'm pretty sure it was YOUR fault.");
 		}
 	}
 
@@ -250,7 +252,7 @@ public class IPv4Activity extends Activity {
 				+ "<font color=#C5C5C5><u><b>Michael</b></u></font>"
 				+ "<font color=#DF0000><u>Sheppard</u></font>"
 				+ "<font color=#4169E1>\u00A0-\u00A0<b>2015</b></font>"
-				+ "<font color=#C5C5C5>\u00A0Version 1.0.5</font>\n";
+				+ "<font color=#C5C5C5>\u00A0Version 1.0.6</font>\n";
 
 		textView.append("\n");
 		textView.append("--------------------------\n");
@@ -260,32 +262,32 @@ public class IPv4Activity extends Activity {
 
 	public void displayMulticastError()
 	{
-		String str = "<font color=#FF0000><b>ERROR: Subnetting Class D (Multicast) networks is not supported!<br>"
-				+ "A Class D (Multicast) network is in the range 224.0 0 0 to 239.255.255.255"
-				+ "This address range is used for host groups or multicast groups such as in EIGRP</b></font>\n";
+		String str = "<font color=#FF0000><b>ERROR:</font><font color=#FFD700> Subnetting Class D (Multicast)"
+				+ " networks is not supported!<br><br>A Class D (Multicast) network is in the range 224.0 0 0 to 239.255.255.255."
+				+ " This address range is used for host groups or multicast groups such as in EIGRP</b></font>\n";
 		textView.setText("");
 		textView.append(Html.fromHtml(str));
 	}
 
 	public void displayReservedError()
 	{
-		String str = "<font color=#FF0000><b>ERROR: Subnetting Class E (Reserved) networks is not supported!<br>"
-				+ "A Class E (Reserved) network is in the range 240.0.0.0 255.255.255.255<br>"
-				+ "This network is reserved by IANA for future use.</b></font>\n";
+		String str = "<font color=#FF0000><b>ERROR:</font><font color=#FFD700> Subnetting Class E (Reserved)"
+				+ " networks is not supported!<br><br> A Class E (Reserved) network is in the range 240.0.0.0 255.255.255.255."
+				+ " This address range is reserved by IANA for future use.</b></font>\n";
 		textView.setText("");
 		textView.append(Html.fromHtml(str));
 	}
 
 	public void displayError()
 	{
-		String str = "<font color=#FF0000><b>ERROR: Invalid IP Address or Mask! (How did you do that?)</b></font>\n";
+		String str = "<font color=#FF0000><b>ERROR:</font><font color=#FFD700> Invalid IP Address or Mask! (How did you do that?)</b></font>\n";
 		textView.setText("");
 		textView.append(Html.fromHtml(str));
 	}
 
 	public void displayErrorMessage(String errorMsg)
 	{
-		String str = "<font color=#FF0000><b>ERROR: "+ errorMsg + "</b></font>\n";
+		String str = "<font color=#FF0000><b>ERROR:</font><font color=#FFD700> "+ errorMsg + "</b></font>\n";
 		textView.setText("");
 		textView.append(Html.fromHtml(str));
 	}
