@@ -2,6 +2,8 @@ package com.pbrane.mike.ipvxsubnet;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,6 +13,7 @@ import android.graphics.Typeface;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DialerKeyListener;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
@@ -21,7 +24,7 @@ import java.text.NumberFormat;
 
 public class IPv4Activity extends Activity {
 
-	private static final String version = "1.0.6";
+	private String version;
 	public static final int MAX_RANGES = 32; // maximum count of network ranges to display
     private CalculateSubnetIPv4 subnet4 = new CalculateSubnetIPv4();
     private TextView textView;
@@ -36,6 +39,16 @@ public class IPv4Activity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_ipvx);
+
+		PackageInfo pacInfo;
+		try {
+			pacInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_ACTIVITIES);
+			version = pacInfo.versionName;
+		} catch (PackageManager.NameNotFoundException e) {
+			Log.e("NameNotFoundException", e.toString());
+		}
+//		Log.e("versionCode", String.format("%s", pacInfo.versionCode));
+//		Log.e("versionName", String.format("%s", pacInfo.versionName));
 
 		// Setup the textview widget
         textView = (TextView) findViewById(R.id.textView);
