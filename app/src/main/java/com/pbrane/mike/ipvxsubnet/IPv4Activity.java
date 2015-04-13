@@ -408,7 +408,6 @@ public class IPv4Activity extends Activity {
 		textView.append("\n");
 
 		// [Networks]
-
 		textView.append(Html.fromHtml("<font color=#00BFFF><b>[Networks]</b></font><br>"));
 		if (usable == 1) { // only one host
 			textView.append(String.format("%3d. %-15s -\n", 1, hostIP));
@@ -429,6 +428,7 @@ public class IPv4Activity extends Activity {
 		} else { // all addresses are unusable, e.g. /31
 			textView.append("\n");
 		}
+
 		// [Notes]
 		textView.append("\n");
 		textView.append(Html.fromHtml("<font color=#00BFFF><b>[Notes]</b></font><br>"));

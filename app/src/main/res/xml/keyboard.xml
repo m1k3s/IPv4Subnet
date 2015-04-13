@@ -25,6 +25,6 @@
         <Key android:codes="-6" android:keyIcon="@mipmap/ic_action_discard_light" android:keyEdgeFlags="left"/> <!-- ALT keycode -->
         <Key android:codes="48" android:keyLabel="0"/>
         <Key android:codes="32" android:keyIcon="@mipmap/sym_keyboard_space_lxx_light"/>
-        <Key android:codes="-4" android:keyIcon="@mipmap/unbundled_check_02" android:keyEdgeFlags="right"/>
+        <Key android:codes="-4" android:keyIcon="@mipmap/custom_done" android:keyEdgeFlags="right"/>
     </Row>
 </Keyboard>
