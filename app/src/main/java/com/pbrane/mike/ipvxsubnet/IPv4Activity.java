@@ -43,12 +43,12 @@ public class IPv4Activity extends Activity {
 		PackageInfo pacInfo;
 		try {
 			pacInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_ACTIVITIES);
-			version = pacInfo.versionName;
+			version = pacInfo.versionName.split("-")[0];
+			Log.e("versionCode", String.format("%s", pacInfo.versionCode));
+			Log.e("versionName", String.format("%s", pacInfo.versionName));
 		} catch (PackageManager.NameNotFoundException e) {
 			Log.e("NameNotFoundException", e.toString());
 		}
-//		Log.e("versionCode", String.format("%s", pacInfo.versionCode));
-//		Log.e("versionName", String.format("%s", pacInfo.versionName));
 
 		// Setup the textview widget
         textView = (TextView) findViewById(R.id.textView);
