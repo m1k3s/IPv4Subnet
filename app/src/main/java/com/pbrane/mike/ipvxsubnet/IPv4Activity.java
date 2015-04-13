@@ -43,7 +43,7 @@ public class IPv4Activity extends Activity {
 		PackageInfo pacInfo;
 		try {
 			pacInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_ACTIVITIES);
-			version = pacInfo.versionName.split("-")[0];
+			version = pacInfo.versionName;//.split("-")[0];
 			Log.e("versionCode", String.format("%s", pacInfo.versionCode));
 			Log.e("versionName", String.format("%s", pacInfo.versionName));
 		} catch (PackageManager.NameNotFoundException e) {
@@ -266,7 +266,7 @@ public class IPv4Activity extends Activity {
 				+ "<font color=#C5C5C5><u><b>Michael</b></u></font>"
 				+ "<font color=#DF0000><u>Sheppard</u></font>"
 				+ "<font color=#4169E1>\u00A0-\u00A0<b>&copy 2015</b></font>"
-				+ "<font color=#C5C5C5>\u00A0Version " + version + "</font>\n";
+				+ "<font color=#C5C5C5>\u00A0" + version + "</font>\n";
 
 		textView.append("\n\n");
 		textView.append(Html.fromHtml(logoString));
