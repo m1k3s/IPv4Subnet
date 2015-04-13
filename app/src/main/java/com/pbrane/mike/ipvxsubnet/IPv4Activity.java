@@ -252,12 +252,10 @@ public class IPv4Activity extends Activity {
 				+ "<font color=#00CC00>Subnet\u00A0-\u00A0</b></font>"
 				+ "<font color=#C5C5C5><u><b>Michael</b></u></font>"
 				+ "<font color=#DF0000><u>Sheppard</u></font>"
-				+ "<font color=#4169E1>\u00A0-\u00A0<b>2015</b></font>"
+				+ "<font color=#4169E1>\u00A0-\u00A0<b>&copy 2015</b></font>"
 				+ "<font color=#C5C5C5>\u00A0Version " + version + "</font>\n";
 
-		textView.append("\n");
-		textView.append("--------------------------\n");
-
+		textView.append("\n\n");
 		textView.append(Html.fromHtml(logoString));
 	}
 
@@ -296,11 +294,11 @@ public class IPv4Activity extends Activity {
 	public String formatNumber(long number)
 	{
 		String result = "";
-		if (number < 10000000) {
+		if (number < 10000000) { // 0 to 999.999K
 			result = String.format("%d", number);
-		} else if (number >= 10000000 && number < 100000000) {
+		} else if (number >= 10000000 && number < 100000000) { // 1M to 99.999999M
 			result = String.format("%.4fM", number / 1000000.0);
-		} else if (number >= 100000000) {
+		} else if (number >= 100000000) { // 100M and above
 			result = String.format("%.4fG", number / 1000000000.0);
 		}
 		return result;

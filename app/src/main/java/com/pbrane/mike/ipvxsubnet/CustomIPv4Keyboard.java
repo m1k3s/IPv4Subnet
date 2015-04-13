@@ -217,7 +217,7 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
 //		// set click volume to system volume
 //		int vol = am.getStreamVolume(AudioManager.STREAM_SYSTEM);
 //
-//		if (vol > 0) {
+//		if (soundEnabled && vol > 0) {
 //			switch (keyCode) {
 //				case 32:
 //					am.playSoundEffect(AudioManager.FX_KEYPRESS_SPACEBAR, vol);
