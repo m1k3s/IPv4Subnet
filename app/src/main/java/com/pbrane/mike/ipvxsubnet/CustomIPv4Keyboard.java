@@ -160,11 +160,8 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
         });
         // disable spell check
         edittext.setInputType(edittext.getInputType() | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-        //
-        // Try to show cursor the complicated way:
-        // @source http://androidpadanam.wordpress.com/2013/05/29/customkeyboard-example/
-        // fixes the cursor not movable bug
-        //
+		// show the cursor
+        // http://androidpadanam.wordpress.com/2013/05/29/customkeyboard-example/
         OnTouchListener otl = new OnTouchListener() {
         	 
             @Override
