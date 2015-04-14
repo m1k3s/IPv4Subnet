@@ -14,30 +14,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/editText"
-        android:layout_alignBottom="@+id/clrButton"
         android:layout_alignParentStart="true"
-        android:layout_toStartOf="@+id/clrButton"
         android:enabled="true"
         android:inputType="phone"
-        android:textColor="#ffffff"/>
-
-    <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/clr_button"
-        android:id="@+id/clrButton"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:onClick="on_clr"
-        android:clickable="true"
-        android:enabled="true" />
+        android:textColor="#ffffff"
+        android:hint="@string/ip_hint"
+        android:textColorHint="#c5c5c5"
+        android:singleLine="true"
+        android:layout_alignEnd="@+id/scroller"/>
 
     <ScrollView
         android:id="@+id/scroller"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/clrButton"
         android:layout_below="@+id/editText"
         android:fillViewport="true"
         android:layout_alignParentBottom="true">
@@ -61,8 +50,9 @@
         android:layout_width="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
-        android:keyBackground="@color/background_material_light"
-        android:keyTextColor="@color/dim_foreground_material_dark"
-        android:background="@color/background_material_light"/>
+        android:keyBackground="@drawable/keyboard_key"
+        android:keyTextColor="@android:color/black"
+        android:background="@color/background_material_light"
+        />
 
 </RelativeLayout>

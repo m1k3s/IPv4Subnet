@@ -1,10 +1,16 @@
 package com.pbrane.mike.ipvxsubnet;
 
 import android.app.Activity;
+//import android.app.AlertDialog;
+//import android.app.Dialog;
+//import android.app.DialogFragment;
+//import android.content.Context;
 import android.content.DialogInterface;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.inputmethodservice.KeyboardView.OnKeyboardActionListener;
+//import android.media.AudioManager;
+//import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.Layout;
@@ -18,22 +24,23 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
-class CustomKeyboard implements android.content.DialogInterface.OnClickListener {
+// custom keyboard class based on SimplicityApks tutorial on XDA
+// and Maarten Pennings CustomKeyboard class code.
+
+class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListener {
 
     private KeyboardView keyboardView;
     private Activity hostActivity;
+//	private boolean soundEnabled;
 
-    public CustomKeyboard(Activity host, int viewid, int layoutid) {
+    public CustomIPv4Keyboard(Activity host, int viewID, int layoutID) {
         hostActivity = host;
-        keyboardView = (KeyboardView) hostActivity.findViewById(viewid);
-        keyboardView.setKeyboard(new Keyboard(hostActivity, layoutid));
+        keyboardView = (KeyboardView) hostActivity.findViewById(viewID);
+        keyboardView.setKeyboard(new Keyboard(hostActivity, layoutID));
         keyboardView.setPreviewEnabled(false); // do not show preview balloons
 
-		OnKeyboardActionListener mOnKeyboardActionListener = new OnKeyboardActionListener() {
-
-			// add special keys
-			public final static int CodeDelete = -5; // Keyboard.KEYCODE_DELETE
-
+		OnKeyboardActionListener onKeyboardActionListener = new OnKeyboardActionListener()
+		{
 			@Override
 			public void onKey(int primaryCode, int[] keyCodes) {
 				View focusCurrent = hostActivity.getWindow().getCurrentFocus();
@@ -50,20 +57,25 @@ class CustomKeyboard implements android.content.DialogInterface.OnClickListener 
 					editable.delete(start, end);
 				}
 				// Apply the key to the edittext
-				if (primaryCode == CodeDelete) {
+				if (primaryCode == Keyboard.KEYCODE_DELETE) {
 					if (editable != null && start > 0) {
 						editable.delete(start - 1, start);
 					}
 				} else if (primaryCode == Keyboard.KEYCODE_DONE) {
 					// We need to send the DONE to the _host_ activity to process the event
 					hostActivity.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
+				} else if (primaryCode == Keyboard.KEYCODE_ALT) { // clear the EditText and TextView
+					edittext.setText("");
+					edittext.setHint(R.string.ip_hint);
+					((IPv4Activity)hostActivity).getTextView().setText("");
 				} else { // insert character
 					editable.insert(start, Character.toString((char) primaryCode));
 				}
 			}
 
 			@Override
-			public void onPress(int arg0) {
+			public void onPress(int primaryCode) {
+//				playClick(primaryCode);
 			}
 
 			@Override
@@ -90,7 +102,7 @@ class CustomKeyboard implements android.content.DialogInterface.OnClickListener 
 			public void swipeUp() {
 			}
 		};
-		keyboardView.setOnKeyboardActionListener(mOnKeyboardActionListener);
+		keyboardView.setOnKeyboardActionListener(onKeyboardActionListener);
         // Hide the default keyboard initially
         hostActivity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
@@ -194,8 +206,64 @@ class CustomKeyboard implements android.content.DialogInterface.OnClickListener 
         };
         edittext.setOnTouchListener(otl); 
     }
-	
+
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
 	}
+
+//	private void playClick(int keyCode)
+//	{
+//		AudioManager am = (AudioManager)hostActivity.getSystemService(Context.AUDIO_SERVICE);
+//		// set click volume to system volume
+//		int vol = am.getStreamVolume(AudioManager.STREAM_SYSTEM);
+//
+//		if (soundEnabled && vol > 0) {
+//			switch (keyCode) {
+//				case 32:
+//					am.playSoundEffect(AudioManager.FX_KEYPRESS_SPACEBAR, vol);
+//					break;
+//				case Keyboard.KEYCODE_DONE:
+//				case 10:
+//					am.playSoundEffect(AudioManager.FX_KEYPRESS_RETURN, vol);
+//					break;
+//				case Keyboard.KEYCODE_DELETE:
+//					am.playSoundEffect(AudioManager.FX_KEYPRESS_DELETE, vol);
+//					break;
+//				default:
+//					am.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, vol);
+//			}
+//		}
+//	}
+
+//	public void setSoundPreference()
+//	{
+//		DialogFragment df =new DialogFragment() {
+//			@Override
+//			public Dialog onCreateDialog(Bundle savedInstanceState) {
+//				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+//				final View checkBoxView = getActivity().getLayoutInflater().inflate(R.layout.checkbox, null);
+//
+//				builder.setView(checkBoxView)
+//						.setMessage(R.string.click_sound)
+//						.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+//							public void onClick(DialogInterface dialog, int id) {
+//								// check the checkbox state and set boolean accordingly
+//								soundEnabled = checkBoxView.isEnabled();
+//							}
+//						})
+//						.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//							public void onClick(DialogInterface dialog, int id) {
+//								// User cancelled the dialog, just exit
+//							}
+//						});
+//				return builder.create();
+//			}
+//
+//		};
+//	}
+//
+//	public boolean getEnabled()
+//	{
+//		return soundEnabled;
+//	}
 }

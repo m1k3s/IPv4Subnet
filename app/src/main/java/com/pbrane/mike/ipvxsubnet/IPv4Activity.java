@@ -19,15 +19,16 @@ import android.widget.TextView;
 import java.text.NumberFormat;
 
 
-public class IPvXActivity extends Activity {
+public class IPv4Activity extends Activity {
 
+	private static final String version = "1.0.6";
 	public static final int MAX_RANGES = 32; // maximum count of network ranges to display
-    private CalculateSubnetIpv4 subnet4 = new CalculateSubnetIpv4();
+    private CalculateSubnetIPv4 subnet4 = new CalculateSubnetIPv4();
     private TextView textView;
 	private EditText editText;
-	private CustomKeyboard customKeyboard;
+	private CustomIPv4Keyboard customIPv4Keyboard;
 	private enum AddrType { CIDR, IP_NETMASK, IP_ONLY, MULTICAST, RESERVED, INVALID }
-	private AddrType addrType;
+	private AddrType addrType = AddrType.INVALID; // initialize to invalid
 
 	@Override
     protected void onCreate(Bundle savedInstanceState)
@@ -44,10 +45,10 @@ public class IPvXActivity extends Activity {
 
 		editText = (EditText) findViewById(R.id.editText);
 
-		// initialize the instance variable customKeyboard
-		customKeyboard = new CustomKeyboard(this, R.id.keyboardview, R.xml.keyboard);
+		// initialize the instance variable customIPv4Keyboard
+		customIPv4Keyboard = new CustomIPv4Keyboard(this, R.id.keyboardview, R.xml.keyboard);
 		// register the edittext
-		customKeyboard.registerEditText(R.id.editText);
+		customIPv4Keyboard.registerEditText(R.id.editText);
 
 		editText.setKeyListener(new DialerKeyListener() {
 			@Override
@@ -62,7 +63,7 @@ public class IPvXActivity extends Activity {
 						'1', '2', '3', '/',
 						'4', '5', '6', '.',
 						'7', '8', '9', //[backspace]
-						':', '0', ' ', //[enter]
+						     '0', ' ', //[enter]
 				};
 			}
 		});
@@ -71,11 +72,13 @@ public class IPvXActivity extends Activity {
 		{
 			@Override
 			public void validate(TextView textView, String text) {
-				if (text.isEmpty()) { // nothing to validate
+				// crap check - not valid if empty or doesn't start with a digit
+				if (text.isEmpty() || !Character.isDigit(text.charAt(0))) {
+					textView.setTextColor(Color.RED);
 					addrType = AddrType.INVALID;
 					return;
 				}
-				// We don't subnet4 Class D or E
+				// We don't subnet Class D or E
 				if (subnet4.isClassD(text)) {
 					textView.setTextColor(Color.RED);
 					addrType = AddrType.MULTICAST;
@@ -150,6 +153,11 @@ public class IPvXActivity extends Activity {
 		@Override
 		final public void onTextChanged(CharSequence s, int start, int before, int count) {}
 	}
+	
+	public TextView getTextView()
+	{
+		return textView;
+	}
 
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle savedInstanceState)
@@ -185,12 +193,7 @@ public class IPvXActivity extends Activity {
 
 	public void HideSoftKeyboard()
 	{
-		customKeyboard.hideCustomKeyboard();
-	}
-
-	public void ShowSoftKeyboard(View view)
-	{
-		customKeyboard.showCustomKeyboard(view);
+		customIPv4Keyboard.hideCustomKeyboard();
 	}
 
 	public void processEntry()
@@ -214,15 +217,16 @@ public class IPvXActivity extends Activity {
 	// to enter an IP only, this will assumed to be /32
 	public void validateAndCalculateSubnet(final String ipAddr)
 	{
+		boolean result;
 		switch (addrType) {
 			case CIDR:
-				subnet4.calculateSubnetCIDR(ipAddr);
+				result = subnet4.calculateSubnetCIDR(ipAddr);
 				break;
 			case IP_NETMASK:
-				subnet4.calculateSubnetCIDR(subnet4.convertToCIDR(ipAddr));
+				result = subnet4.calculateSubnetCIDR(subnet4.convertToCIDR(ipAddr));
 				break;
 			case IP_ONLY:
-				subnet4.calculateSubnetCIDR(ipAddr + "/32"); // assume /32
+				result = subnet4.calculateSubnetCIDR(ipAddr + "/32"); // assume /32
 				break;
 			case MULTICAST:
 				displayMulticastError();
@@ -235,15 +239,12 @@ public class IPvXActivity extends Activity {
 				displayError();
 				return;
 		}
-		displayResults();
+		if (result) {
+			displayResults();
+		} else {
+			displayErrorMessage("Something has gone horribly wrong! I'm pretty sure it was YOUR fault.");
+		}
 	}
-
-	// 'Clr' button callback
-    public void on_clr(View view)
-    {
-		editText.setText("");
-		ShowSoftKeyboard(view);
-    }
 
 	protected void displayLogo()
 	{
@@ -251,36 +252,41 @@ public class IPvXActivity extends Activity {
 				+ "<font color=#00CC00>Subnet\u00A0-\u00A0</b></font>"
 				+ "<font color=#C5C5C5><u><b>Michael</b></u></font>"
 				+ "<font color=#DF0000><u>Sheppard</u></font>"
-				+ "<font color=#4169E1>\u00A0-\u00A0<b>2015</b></font>"
-				+ "<font color=#C5C5C5>\u00A0Version 1.0.5</font>\n";
+				+ "<font color=#4169E1>\u00A0-\u00A0<b>&copy 2015</b></font>"
+				+ "<font color=#C5C5C5>\u00A0Version " + version + "</font>\n";
 
-		textView.append("\n");
-		textView.append("--------------------------\n");
-
+		textView.append("\n\n");
 		textView.append(Html.fromHtml(logoString));
 	}
 
 	public void displayMulticastError()
 	{
-		String str = "<font color=#FF0000><b>ERROR: Subnetting Class D (Multicast) networks is not supported!<br>"
-				+ "A Class D (Multicast) network is in the range 224.0 0 0 to 239.255.255.255"
-				+ "This address range is used for host groups or multicast groups such as in EIGRP</b></font>\n";
+		String str = "<font color=#FF0000><b>ERROR:</font><font color=#FFD700> Subnetting Class D (Multicast)"
+				+ " networks is not supported!<br><br>A Class D (Multicast) network is in the range 224.0 0 0 to 239.255.255.255."
+				+ " This address range is used for host groups or multicast groups such as in EIGRP</b></font>\n";
 		textView.setText("");
 		textView.append(Html.fromHtml(str));
 	}
 
 	public void displayReservedError()
 	{
-		String str = "<font color=#FF0000><b>ERROR: Subnetting Class E (Reserved) networks is not supported!<br>"
-				+ "A Class E (Reserved) network is in the range 240.0.0.0 255.255.255.255<br>"
-				+ "This network is reserved by IANA for future use.</b></font>\n";
+		String str = "<font color=#FF0000><b>ERROR:</font><font color=#FFD700> Subnetting Class E (Reserved)"
+				+ " networks is not supported!<br><br> A Class E (Reserved) network is in the range 240.0.0.0 255.255.255.255."
+				+ " This address range is reserved by IANA for future use.</b></font>\n";
 		textView.setText("");
 		textView.append(Html.fromHtml(str));
 	}
 
 	public void displayError()
 	{
-		String str = "<font color=#FF0000><b>ERROR: Invalid IP Address or Mask! (How did you do that?)</b></font>\n";
+		String str = "<font color=#FF0000><b>ERROR:</font><font color=#FFD700> Invalid IP Address or Mask! (How did you do that?)</b></font>\n";
+		textView.setText("");
+		textView.append(Html.fromHtml(str));
+	}
+
+	public void displayErrorMessage(String errorMsg)
+	{
+		String str = "<font color=#FF0000><b>ERROR:</font><font color=#FFD700> "+ errorMsg + "</b></font>\n";
 		textView.setText("");
 		textView.append(Html.fromHtml(str));
 	}
@@ -288,11 +294,11 @@ public class IPvXActivity extends Activity {
 	public String formatNumber(long number)
 	{
 		String result = "";
-		if (number < 10000000) {
+		if (number < 10000000) { // 0 to 999.999K
 			result = String.format("%d", number);
-		} else if (number >= 10000000 && number < 100000000) {
+		} else if (number >= 10000000 && number < 100000000) { // 1M to 99.999999M
 			result = String.format("%.4fM", number / 1000000.0);
-		} else if (number >= 100000000) {
+		} else if (number >= 100000000) { // 100M and above
 			result = String.format("%.4fG", number / 1000000000.0);
 		}
 		return result;
@@ -400,11 +406,10 @@ public class IPvXActivity extends Activity {
 		textView.append("\n");
 
 		// [Networks]
-
 		textView.append(Html.fromHtml("<font color=#00BFFF><b>[Networks]</b></font><br>"));
 		if (usable == 1) { // only one host
 			textView.append(String.format("%3d. %-15s -\n", 1, hostIP));
-		} else if (usable > 1) { // multiple subnets
+		} else if (usable > 1) { // one or more subnets
 			String[] ranges = subnet4.getRanges();
 			int count = 1;
 			for (String range : ranges) {
@@ -421,6 +426,7 @@ public class IPvXActivity extends Activity {
 		} else { // all addresses are unusable, e.g. /31
 			textView.append("\n");
 		}
+
 		// [Notes]
 		textView.append("\n");
 		textView.append(Html.fromHtml("<font color=#00BFFF><b>[Notes]</b></font><br>"));
