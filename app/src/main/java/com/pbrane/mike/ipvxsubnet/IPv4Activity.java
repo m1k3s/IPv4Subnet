@@ -269,7 +269,7 @@ public class IPv4Activity extends Activity {
 				+ "<font color=#C5C5C5><u><b>Michael</b></u></font>"
 				+ "<font color=#DF0000><u>Sheppard</u></font>"
 				+ "<font color=#4169E1>\u00A0-\u00A0<b>&copy 2015</b></font>"
-				+ "<font color=#C5C5C5>\u00A0v" + version + "-" + build + "</font>\n";
+				+ "<font color=#C5C5C5>\u00A0" + version + "-" + build + "</font>\n";
 
 		textView.append("\n\n");
 		textView.append(Html.fromHtml(logoString));
