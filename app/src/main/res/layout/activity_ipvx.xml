@@ -41,6 +41,7 @@
             android:singleLine="false"/>
     </ScrollView>
 
+    <!-- custom keyboard -->
     <android.inputmethodservice.KeyboardView
         android:id="@+id/keyboardview"
         android:visibility="gone"
