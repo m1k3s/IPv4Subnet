@@ -31,7 +31,6 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
 
     private KeyboardView keyboardView;
     private Activity hostActivity;
-//	private boolean soundEnabled;
 
     public CustomIPv4Keyboard(Activity host, int viewID, int layoutID) {
         hostActivity = host;
@@ -75,7 +74,6 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
 
 			@Override
 			public void onPress(int primaryCode) {
-//				playClick(primaryCode);
 			}
 
 			@Override
@@ -210,60 +208,4 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
 	}
-
-//	private void playClick(int keyCode)
-//	{
-//		AudioManager am = (AudioManager)hostActivity.getSystemService(Context.AUDIO_SERVICE);
-//		// set click volume to system volume
-//		int vol = am.getStreamVolume(AudioManager.STREAM_SYSTEM);
-//
-//		if (soundEnabled && vol > 0) {
-//			switch (keyCode) {
-//				case 32:
-//					am.playSoundEffect(AudioManager.FX_KEYPRESS_SPACEBAR, vol);
-//					break;
-//				case Keyboard.KEYCODE_DONE:
-//				case 10:
-//					am.playSoundEffect(AudioManager.FX_KEYPRESS_RETURN, vol);
-//					break;
-//				case Keyboard.KEYCODE_DELETE:
-//					am.playSoundEffect(AudioManager.FX_KEYPRESS_DELETE, vol);
-//					break;
-//				default:
-//					am.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, vol);
-//			}
-//		}
-//	}
-
-//	public void setSoundPreference()
-//	{
-//		DialogFragment df =new DialogFragment() {
-//			@Override
-//			public Dialog onCreateDialog(Bundle savedInstanceState) {
-//				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-//				final View checkBoxView = getActivity().getLayoutInflater().inflate(R.layout.checkbox, null);
-//
-//				builder.setView(checkBoxView)
-//						.setMessage(R.string.click_sound)
-//						.setPositiveButton("Done", new DialogInterface.OnClickListener() {
-//							public void onClick(DialogInterface dialog, int id) {
-//								// check the checkbox state and set boolean accordingly
-//								soundEnabled = checkBoxView.isEnabled();
-//							}
-//						})
-//						.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//							public void onClick(DialogInterface dialog, int id) {
-//								// User cancelled the dialog, just exit
-//							}
-//						});
-//				return builder.create();
-//			}
-//
-//		};
-//	}
-//
-//	public boolean getEnabled()
-//	{
-//		return soundEnabled;
-//	}
 }
