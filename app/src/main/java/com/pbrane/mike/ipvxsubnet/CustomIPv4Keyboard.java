@@ -42,11 +42,11 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
 		{
 			@Override
 			public void onKey(int primaryCode, int[] keyCodes) {
-				View focusCurrent = hostActivity.getWindow().getCurrentFocus();
-				if (focusCurrent == null || focusCurrent.getClass() != EditText.class) {
+				View currentFocus = hostActivity.getWindow().getCurrentFocus();
+				if (currentFocus == null || currentFocus.getClass() != EditText.class) {
 					return;
 				}
-				EditText edittext = (EditText) focusCurrent;
+				EditText edittext = (EditText) currentFocus;
 				Editable editable = edittext.getText();
 
 				int start = edittext.getSelectionStart();
@@ -110,7 +110,7 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
     }
 
     // make the CustomKeyboard visible, and hide the system keyboard for view.
-    public void showCustomKeyboard(View v  ) {
+    public void showCustomKeyboard(View v) {
         keyboardView.setVisibility(View.VISIBLE);
         keyboardView.setEnabled(true);
         if (v != null) {
