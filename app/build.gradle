@@ -52,14 +52,13 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
-//            applicationVariants.all { variant ->
-//                variant.outputs.each { output ->
-//                    def date = new Date();
-//                    def formattedDate = date.format('yyyyMMdd')
-//                    output.outputFile = new File(output.outputFile.parent,
-//                            output.outputFile.name.replace("-release", "-" + formattedDate))
-//                }
-//            }
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+                    def vstr = variant.versionName.toString().split("-")
+                    output.outputFile = new File(output.outputFile.parent,
+                            output.outputFile.name.replace("app-release", "ipvxsubnet-" + vstr[0] + "-" + vstr[1]))
+                }
+            }
         }
     }
     productFlavors {
