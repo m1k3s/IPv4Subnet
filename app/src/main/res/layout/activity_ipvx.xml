@@ -51,7 +51,7 @@
         android:layout_width="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
-        android:keyBackground="@drawable/keyboard_key"
+        android:keyBackground="@xml/keyboard_key"
         android:keyTextColor="@android:color/black"
         android:background="@color/background_material_light"
         />

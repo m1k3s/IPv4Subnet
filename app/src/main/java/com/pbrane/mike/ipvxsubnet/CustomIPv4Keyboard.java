@@ -1,16 +1,10 @@
 package com.pbrane.mike.ipvxsubnet;
 
 import android.app.Activity;
-//import android.app.AlertDialog;
-//import android.app.Dialog;
-//import android.app.DialogFragment;
-//import android.content.Context;
 import android.content.DialogInterface;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.inputmethodservice.KeyboardView.OnKeyboardActionListener;
-//import android.media.AudioManager;
-//import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.Layout;
