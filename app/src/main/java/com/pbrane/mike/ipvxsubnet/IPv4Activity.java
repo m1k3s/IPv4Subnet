@@ -139,7 +139,7 @@ public class IPv4Activity extends Activity {
 			{
 				switch (v.getId()) {
 					case R.id.textView:
-						HideSoftKeyboard();
+						customIPv4Keyboard.hideCustomKeyboard();
 						break;
 				}
 			}
@@ -205,11 +205,6 @@ public class IPv4Activity extends Activity {
 			}
 		}
 		return super.dispatchKeyEvent(e);
-	}
-
-	public void HideSoftKeyboard()
-	{
-		customIPv4Keyboard.hideCustomKeyboard();
 	}
 
 	public void processEntry()
@@ -466,6 +461,6 @@ public class IPv4Activity extends Activity {
 			textView.append(Html.fromHtml(privateIPComment));
 		}
 		displayVersionLogo();
-		HideSoftKeyboard();
+		customIPv4Keyboard.hideCustomKeyboard();
     }
 }

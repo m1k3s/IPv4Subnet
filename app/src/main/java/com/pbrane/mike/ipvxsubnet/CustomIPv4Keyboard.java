@@ -1,5 +1,7 @@
 package com.pbrane.mike.ipvxsubnet;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.inputmethodservice.Keyboard;
@@ -103,18 +105,34 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
         return keyboardView.getVisibility() == View.VISIBLE;
     }
 
-    // make the CustomKeyboard visible, and hide the system keyboard for view.
+    // make the CustomKeyboard visible with slide animation and fade in
+    // and hide the system keyboard for view.
     public void showCustomKeyboard(View v) {
-        keyboardView.setVisibility(View.VISIBLE);
-        keyboardView.setEnabled(true);
-        if (v != null) {
+		keyboardView.animate().translationY(0).alpha(1.0f)
+			.setListener(new AnimatorListenerAdapter() {
+				@Override
+				public void onAnimationEnd(Animator animation) {
+					super.onAnimationEnd(animation);
+					keyboardView.setVisibility(View.VISIBLE);
+					keyboardView.setEnabled(true);
+				}
+			});
+        if (v != null) { // hide the system keyboard
 			((InputMethodManager) hostActivity.getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(v.getWindowToken(), 0);
 		}
     }
 
+	// hide the CustomKeyboard with slide animation and fade out
     public void hideCustomKeyboard() {
-        keyboardView.setVisibility(View.GONE);
-        keyboardView.setEnabled(false);
+		keyboardView.animate().translationY(keyboardView.getHeight()).alpha(0.0f)
+			.setListener(new AnimatorListenerAdapter() {
+				@Override
+				public void onAnimationEnd(Animator animation) {
+					super.onAnimationEnd(animation);
+					keyboardView.setVisibility(View.GONE);
+					keyboardView.setEnabled(false);
+				}
+			});
     }
 
     public void registerEditText(int resid) {
