@@ -156,11 +156,11 @@ public class IPv4Activity extends Activity {
 	}
 
 	private abstract class TextValidator implements TextWatcher {
-		private final TextView textView;
+		private final TextView validatorTextView;
 
 		public TextValidator(EditText editText)
 		{
-			this.textView = editText;
+			this.validatorTextView = editText;
 		}
 
 		public abstract void validate(TextView textView, String text);
@@ -168,8 +168,8 @@ public class IPv4Activity extends Activity {
 		@Override
 		final public void afterTextChanged(Editable s)
 		{
-			String text = this.textView.getText().toString();
-			validate(this.textView, text);
+			String text = this.validatorTextView.getText().toString();
+			validate(this.validatorTextView, text);
 		}
 
 		@Override
