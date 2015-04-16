@@ -19,6 +19,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+
 import java.text.NumberFormat;
 
 
@@ -26,24 +27,25 @@ public class IPv4Activity extends Activity {
 
 	private String version;
 	public static final int MAX_RANGES = 32; // maximum count of network ranges to display
-    private CalculateSubnetIPv4 subnet4 = new CalculateSubnetIPv4();
-    private TextView textView;
+	private CalculateSubnetIPv4 subnet4 = new CalculateSubnetIPv4();
+	private TextView textView;
 	private EditText editText;
 	private CustomIPv4Keyboard customIPv4Keyboard;
-	private enum AddrType { CIDR, IP_NETMASK, IP_ONLY, MULTICAST, RESERVED, INVALID }
+
+	private enum AddrType {CIDR, IP_NETMASK, IP_ONLY, MULTICAST, RESERVED, INVALID}
+
 	private AddrType addrType = AddrType.INVALID; // initialize to invalid
 
 	@Override
-    protected void onCreate(Bundle savedInstanceState)
-	{
-        super.onCreate(savedInstanceState);
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_ipvx);
+		setContentView(R.layout.activity_ipvx);
 
 		version = getVersionString();
 
 		// Setup the textview widget
-        textView = (TextView) findViewById(R.id.textView);
+		textView = (TextView) findViewById(R.id.textView);
 		textView.setTypeface(Typeface.MONOSPACE);
 		textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.0f);
 		textView.setTextColor(Color.WHITE);
@@ -68,13 +70,12 @@ public class IPv4Activity extends Activity {
 						'1', '2', '3', '/',
 						'4', '5', '6', '.',
 						'7', '8', '9', //[backspace]
-						     '0', ' ', //[enter]
+						'0', ' ', //[enter]
 				};
 			}
 		});
 		// validate IP address as it's entered
-		editText.addTextChangedListener(new TextValidator(editText)
-		{
+		editText.addTextChangedListener(new TextValidator(editText) {
 			@Override
 			public void validate(TextView textView, String text) {
 				// crap check - not valid if empty or doesn't start with a digit
@@ -105,9 +106,9 @@ public class IPv4Activity extends Activity {
 					textView.setTextColor(Color.GREEN);
 					addrType = AddrType.IP_ONLY;
 				} else {
-				   	textView.setTextColor(Color.RED);
+					textView.setTextColor(Color.RED);
 					addrType = AddrType.INVALID;
-			   	}
+				}
 			}
 		});
 
@@ -122,10 +123,8 @@ public class IPv4Activity extends Activity {
 		}
 
 		// hide the softkeyboard when the textview is clicked
-		textView.setOnClickListener(new View.OnClickListener()
-		{
-			public void onClick(View v)
-			{
+		textView.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
 				switch (v.getId()) {
 					case R.id.textView:
 						customIPv4Keyboard.hideCustomKeyboard();
@@ -133,10 +132,9 @@ public class IPv4Activity extends Activity {
 				}
 			}
 		});
-    }
+	}
 
-	public String getVersionString()
-	{
+	public String getVersionString() {
 		PackageInfo pacInfo;
 		String version;
 		String build = "";
@@ -157,35 +155,33 @@ public class IPv4Activity extends Activity {
 	private abstract class TextValidator implements TextWatcher {
 		private final TextView validatorTextView;
 
-		public TextValidator(EditText editText)
-		{
+		public TextValidator(EditText editText) {
 			this.validatorTextView = editText;
 		}
 
 		public abstract void validate(TextView textView, String text);
 
 		@Override
-		final public void afterTextChanged(Editable s)
-		{
+		final public void afterTextChanged(Editable s) {
 			String text = this.validatorTextView.getText().toString();
 			validate(this.validatorTextView, text);
 		}
 
 		@Override
-		final public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+		final public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+		}
 
 		@Override
-		final public void onTextChanged(CharSequence s, int start, int before, int count) {}
+		final public void onTextChanged(CharSequence s, int start, int before, int count) {
+		}
 	}
-	
-	public TextView getTextView()
-	{
+
+	public TextView getTextView() {
 		return textView;
 	}
 
 	@Override
-	public void onSaveInstanceState(@NonNull Bundle savedInstanceState)
-	{
+	public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
 		super.onSaveInstanceState(savedInstanceState);
 
 		String ipAddr = editText.getText().toString();
@@ -193,8 +189,7 @@ public class IPv4Activity extends Activity {
 	}
 
 	@Override
-	public void onRestoreInstanceState(@NonNull Bundle savedInstanceState)
-	{
+	public void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
 
 		String ipAddr = savedInstanceState.getString("IPAddr");
@@ -204,8 +199,7 @@ public class IPv4Activity extends Activity {
 
 	// use the keyboard enter key to start the subnetting process
 	@Override
-	public boolean dispatchKeyEvent(@NonNull KeyEvent e)
-	{
+	public boolean dispatchKeyEvent(@NonNull KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
 			if (e.getAction() == KeyEvent.ACTION_UP) {
 				processEntry();
@@ -215,16 +209,14 @@ public class IPv4Activity extends Activity {
 		return super.dispatchKeyEvent(e);
 	}
 
-	public void processEntry()
-	{
+	public void processEntry() {
 		final String IpAndMask = editText.getText().toString();
 		saveIP(IpAndMask);
 		validateAndCalculateSubnet(IpAndMask);
 	}
 
 	// save the IP/mask to the prefs file
-	public void saveIP(String ip)
-	{
+	public void saveIP(String ip) {
 		SharedPreferences sharedPrefs = this.getPreferences(MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPrefs.edit();
 		editor.putString(getString(R.string.savedIPv4), ip);
@@ -234,8 +226,7 @@ public class IPv4Activity extends Activity {
 	// The IP and netmask should already be validated. We are checking for
 	// a valid type of address notation. You are allowed
 	// to enter an IP only, this will assumed to be /32
-	public void validateAndCalculateSubnet(final String ipAddr)
-	{
+	public void validateAndCalculateSubnet(final String ipAddr) {
 		boolean result;
 		switch (addrType) {
 			case CIDR:
@@ -265,8 +256,7 @@ public class IPv4Activity extends Activity {
 		}
 	}
 
-	protected void displayVersionLogo()
-	{
+	protected void displayVersionLogo() {
 		String logoString = "<small><font color=#4169E1><b>IPvX</font>"
 				+ "<font color=#00CC00>Subnet\u00A0-\u00A0</b></font>"
 				+ "<font color=#C5C5C5><u><b>Michael</b></u></font>"
@@ -278,8 +268,7 @@ public class IPv4Activity extends Activity {
 		textView.append(Html.fromHtml(logoString));
 	}
 
-	public void displayMulticastInfoMessage()
-	{
+	public void displayMulticastInfoMessage() {
 		String str = "<font color=#FF0000><b>INFO:</font><font color=#FFD700> Subnetting Class D (Multicast)"
 				+ " networks is not supported!<br><br>A Class D (Multicast) network is in the range 224.0 0 0 to 239.255.255.255."
 				+ " This address range is used for host groups or multicast groups such as in EIGRP</b></font>\n";
@@ -287,8 +276,7 @@ public class IPv4Activity extends Activity {
 		textView.append(Html.fromHtml(str));
 	}
 
-	public void displayReservedRangeInfoMessage()
-	{
+	public void displayReservedRangeInfoMessage() {
 		String str = "<font color=#FF0000><b>INFO:</font><font color=#FFD700> Subnetting Class E (Reserved)"
 				+ " networks is not supported!<br><br> A Class E (Reserved) network is in the range 240.0.0.0 255.255.255.255."
 				+ " This address range is reserved by IANA for future use.</b></font>\n";
@@ -296,22 +284,19 @@ public class IPv4Activity extends Activity {
 		textView.append(Html.fromHtml(str));
 	}
 
-	public void displayError()
-	{
+	public void displayError() {
 		String str = "<font color=#FF0000><b>ERROR:</font><font color=#FFD700> Invalid IP Address or Mask! (How did you do that?)</b></font>\n";
 		textView.setText("");
 		textView.append(Html.fromHtml(str));
 	}
 
-	public void displayErrorMessage(String errorMsg)
-	{
-		String str = "<font color=#FF0000><b>ERROR:</font><font color=#FFD700> "+ errorMsg + "</b></font>\n";
+	public void displayErrorMessage(String errorMsg) {
+		String str = "<font color=#FF0000><b>ERROR:</font><font color=#FFD700> " + errorMsg + "</b></font>\n";
 		textView.setText("");
 		textView.append(Html.fromHtml(str));
 	}
 
-	public String formatNumber(long number)
-	{
+	public String formatNumber(long number) {
 		String result = "";
 		if (number < 10000000) { // 0 to 999.999K
 			result = String.format("%d", number);
@@ -329,8 +314,7 @@ public class IPv4Activity extends Activity {
 	// Class B: 172.16.0.0 - 172.31.255.255
 	// Class C: 192.168.0.0 - 192.168.255.255
 	//
-	public String getPrivateIpRangesString(String ip)
-	{
+	public String getPrivateIpRangesString(String ip) {
 		long ipDec = Long.parseLong(subnet4.ipToDecimal(ip));
 		long ipLow, ipHigh;
 		String comment = "";
@@ -357,9 +341,8 @@ public class IPv4Activity extends Activity {
 		return comment;
 	}
 
-    public void displayResults()
-    {
-        textView.setText(""); // clear TextView
+	public void displayResults() {
+		textView.setText(""); // clear TextView
 
 		// [Classful]
 		textView.append(Html.fromHtml("<font color=#00BFFF><b>[Classful]</b></font><br>"));
@@ -386,7 +369,7 @@ public class IPv4Activity extends Activity {
 		textView.append(String.format("%-25s%s\n", "Network Address:", subnet4.getNetwork()));
 		String mask = subnet4.getDecimalMaskOctets();
 		textView.append(String.format("%-25s%s\n", "NetMask:", mask));
-		String nhbits = Integer.toString(subnet4.getNetworkBits()) + " / " +Integer.toString(subnet4.getHostBits());
+		String nhbits = Integer.toString(subnet4.getNetworkBits()) + " / " + Integer.toString(subnet4.getHostBits());
 		textView.append(String.format("%-25s%s\n", "Net/Host Mask (bits):", nhbits));
 		textView.append(String.format("%-25s%s\n", "NetMask (hex):", subnet4.ipToHex(mask)));
 		textView.append(String.format("%-25s%s\n", "Broadcast:", subnet4.getBroadcast()));
@@ -464,11 +447,11 @@ public class IPv4Activity extends Activity {
 		if (subnet4.isPrivateIP(hostIP)) {
 			textView.append("\n");
 			String privateIPComment = "<font color=#FFD700> * This host IP address is in a private"
-			+ " IP range and cannot be routed on the public network. Routers on the Internet should"
-			+ " be configured to discard these IPs.<br>" + getPrivateIpRangesString(hostIP) + "</font><br>";
+					+ " IP range and cannot be routed on the public network. Routers on the Internet should"
+					+ " be configured to discard these IPs.<br>" + getPrivateIpRangesString(hostIP) + "</font><br>";
 			textView.append(Html.fromHtml(privateIPComment));
 		}
 		displayVersionLogo();
 		customIPv4Keyboard.hideCustomKeyboard();
-    }
+	}
 }
