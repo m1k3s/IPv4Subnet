@@ -2,6 +2,8 @@ package com.pbrane.mike.ipvxsubnet;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,6 +13,7 @@ import android.graphics.Typeface;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DialerKeyListener;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
@@ -21,7 +24,8 @@ import java.text.NumberFormat;
 
 public class IPv4Activity extends Activity {
 
-	private static final String version = "1.0.6";
+	private String version;
+//	private String build;
 	public static final int MAX_RANGES = 32; // maximum count of network ranges to display
     private CalculateSubnetIPv4 subnet4 = new CalculateSubnetIPv4();
     private TextView textView;
@@ -36,6 +40,8 @@ public class IPv4Activity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_ipvx);
+
+		version = getVersionString();
 
 		// Setup the textview widget
         textView = (TextView) findViewById(R.id.textView);
@@ -123,12 +129,31 @@ public class IPv4Activity extends Activity {
 			{
 				switch (v.getId()) {
 					case R.id.textView:
-						HideSoftKeyboard();
+						customIPv4Keyboard.hideCustomKeyboard();
 						break;
 				}
 			}
 		});
     }
+
+	public String getVersionString()
+	{
+		PackageInfo pacInfo;
+		String version;
+		String build = "";
+		try {
+			pacInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_ACTIVITIES);
+			String[] tmp = pacInfo.versionName.split("-");
+			version = tmp[0];
+			build = tmp.length > 1 ? tmp[1] : "";
+		} catch (PackageManager.NameNotFoundException e) {
+			Log.e("NameNotFoundException", e.toString());
+			version = "kr4p";
+		}
+		String padding = "0000"; // 4 digits in build number
+		String result = padding + build;
+		return version + "." + result.substring(result.length() - padding.length(), result.length());
+	}
 
 	private abstract class TextValidator implements TextWatcher {
 		private final TextView textView;
@@ -191,11 +216,6 @@ public class IPv4Activity extends Activity {
 		return super.dispatchKeyEvent(e);
 	}
 
-	public void HideSoftKeyboard()
-	{
-		customIPv4Keyboard.hideCustomKeyboard();
-	}
-
 	public void processEntry()
 	{
 		final String IpAndMask = editText.getText().toString();
@@ -229,10 +249,10 @@ public class IPv4Activity extends Activity {
 				result = subnet4.calculateSubnetCIDR(ipAddr + "/32"); // assume /32
 				break;
 			case MULTICAST:
-				displayMulticastError();
+				displayMulticastInfoMessage();
 				return;
 			case RESERVED:
-				displayReservedError();
+				displayReservedRangeInfoMessage();
 				return;
 			case INVALID:
 			default:
@@ -246,31 +266,31 @@ public class IPv4Activity extends Activity {
 		}
 	}
 
-	protected void displayLogo()
+	protected void displayVersionLogo()
 	{
 		String logoString = "<small><font color=#4169E1><b>IPvX</font>"
 				+ "<font color=#00CC00>Subnet\u00A0-\u00A0</b></font>"
 				+ "<font color=#C5C5C5><u><b>Michael</b></u></font>"
 				+ "<font color=#DF0000><u>Sheppard</u></font>"
 				+ "<font color=#4169E1>\u00A0-\u00A0<b>&copy 2015</b></font>"
-				+ "<font color=#C5C5C5>\u00A0Version " + version + "</font>\n";
+				+ "<font color=#C5C5C5>\u00A0v" + version + "</font>\n";
 
 		textView.append("\n\n");
 		textView.append(Html.fromHtml(logoString));
 	}
 
-	public void displayMulticastError()
+	public void displayMulticastInfoMessage()
 	{
-		String str = "<font color=#FF0000><b>ERROR:</font><font color=#FFD700> Subnetting Class D (Multicast)"
+		String str = "<font color=#FF0000><b>INFO:</font><font color=#FFD700> Subnetting Class D (Multicast)"
 				+ " networks is not supported!<br><br>A Class D (Multicast) network is in the range 224.0 0 0 to 239.255.255.255."
 				+ " This address range is used for host groups or multicast groups such as in EIGRP</b></font>\n";
 		textView.setText("");
 		textView.append(Html.fromHtml(str));
 	}
 
-	public void displayReservedError()
+	public void displayReservedRangeInfoMessage()
 	{
-		String str = "<font color=#FF0000><b>ERROR:</font><font color=#FFD700> Subnetting Class E (Reserved)"
+		String str = "<font color=#FF0000><b>INFO:</font><font color=#FFD700> Subnetting Class E (Reserved)"
 				+ " networks is not supported!<br><br> A Class E (Reserved) network is in the range 240.0.0.0 255.255.255.255."
 				+ " This address range is reserved by IANA for future use.</b></font>\n";
 		textView.setText("");
@@ -449,7 +469,7 @@ public class IPv4Activity extends Activity {
 			+ " be configured to discard these IPs.<br>" + getPrivateIpRangesString(hostIP) + "</font><br>";
 			textView.append(Html.fromHtml(privateIPComment));
 		}
-		displayLogo();
-		HideSoftKeyboard();
+		displayVersionLogo();
+		customIPv4Keyboard.hideCustomKeyboard();
     }
 }

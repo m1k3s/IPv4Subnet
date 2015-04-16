@@ -1,12 +1,41 @@
 apply plugin: 'com.android.application'
 
+def getVersionCode = { ->
+    try {
+        def code = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'tag', '--list'
+            standardOutput = code
+        }
+        return code.toString().split("\n").size()
+    }
+    catch (ignored) {
+        return -1;
+    }
+}
+
+def getVersionName = { ->
+    try {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'describe', '--tags', '--dirty'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    }
+    catch (ignored) {
+        return null;
+    }
+}
+
+
 android {
     signingConfigs {
         release {
             keyAlias 'android'
-            keyPassword 'ds1b8zs'
+            keyPassword System.getenv("KEYPWD")
             storeFile file('/home/mike/.keystore-android.jks')
-            storePassword 'ds1b8zs'
+            storePassword System.getenv("KSTOREPWD")
         }
     }
     compileSdkVersion 21
@@ -15,22 +44,21 @@ android {
         applicationId 'com.pbrane.mike.ipvxsubnet'
         minSdkVersion 19
         targetSdkVersion 22
-        versionCode 1
-        versionName "1.0"
+        versionCode getVersionCode()
+        versionName getVersionName()
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
-//            applicationVariants.all { variant ->
-//                variant.outputs.each { output ->
-//                    def date = new Date();
-//                    def formattedDate = date.format('yyyyMMdd')
-//                    output.outputFile = new File(output.outputFile.parent,
-//                            output.outputFile.name.replace("-release", "-" + formattedDate))
-//                }
-//            }
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+                    def vstr = variant.versionName.toString().split("-")
+                    output.outputFile = new File(output.outputFile.parent,
+                            output.outputFile.name.replace("app-release", "ipvxsubnet-" + vstr[0] + "-" + vstr[1]))
+                }
+            }
         }
     }
     productFlavors {

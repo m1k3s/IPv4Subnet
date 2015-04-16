@@ -1,16 +1,12 @@
 package com.pbrane.mike.ipvxsubnet;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
-//import android.app.AlertDialog;
-//import android.app.Dialog;
-//import android.app.DialogFragment;
-//import android.content.Context;
 import android.content.DialogInterface;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.inputmethodservice.KeyboardView.OnKeyboardActionListener;
-//import android.media.AudioManager;
-//import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.Layout;
@@ -31,7 +27,6 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
 
     private KeyboardView keyboardView;
     private Activity hostActivity;
-//	private boolean soundEnabled;
 
     public CustomIPv4Keyboard(Activity host, int viewID, int layoutID) {
         hostActivity = host;
@@ -43,11 +38,11 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
 		{
 			@Override
 			public void onKey(int primaryCode, int[] keyCodes) {
-				View focusCurrent = hostActivity.getWindow().getCurrentFocus();
-				if (focusCurrent == null || focusCurrent.getClass() != EditText.class) {
+				View currentFocus = hostActivity.getWindow().getCurrentFocus();
+				if (currentFocus == null || currentFocus.getClass() != EditText.class) {
 					return;
 				}
-				EditText edittext = (EditText) focusCurrent;
+				EditText edittext = (EditText) currentFocus;
 				Editable editable = edittext.getText();
 
 				int start = edittext.getSelectionStart();
@@ -75,7 +70,6 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
 
 			@Override
 			public void onPress(int primaryCode) {
-//				playClick(primaryCode);
 			}
 
 			@Override
@@ -103,7 +97,7 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
 			}
 		};
 		keyboardView.setOnKeyboardActionListener(onKeyboardActionListener);
-        // Hide the default keyboard initially
+        // Hide the system keyboard initially
         hostActivity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
@@ -111,18 +105,34 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
         return keyboardView.getVisibility() == View.VISIBLE;
     }
 
-    // make the CustomKeyboard visible, and hide the system keyboard for view.
-    public void showCustomKeyboard(View v  ) {
-        keyboardView.setVisibility(View.VISIBLE);
-        keyboardView.setEnabled(true);
-        if (v != null) {
+    // make the CustomKeyboard visible with slide animation and fade in
+    // and hide the system keyboard for view.
+    public void showCustomKeyboard(View v) {
+		keyboardView.animate().translationY(0).alpha(1.0f)
+			.setListener(new AnimatorListenerAdapter() {
+				@Override
+				public void onAnimationEnd(Animator animation) {
+					super.onAnimationEnd(animation);
+					keyboardView.setVisibility(View.VISIBLE);
+					keyboardView.setEnabled(true);
+				}
+			});
+        if (v != null) { // hide the system keyboard
 			((InputMethodManager) hostActivity.getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(v.getWindowToken(), 0);
 		}
     }
 
+	// hide the CustomKeyboard with slide animation and fade out
     public void hideCustomKeyboard() {
-        keyboardView.setVisibility(View.GONE);
-        keyboardView.setEnabled(false);
+		keyboardView.animate().translationY(keyboardView.getHeight()).alpha(0.0f)
+			.setListener(new AnimatorListenerAdapter() {
+				@Override
+				public void onAnimationEnd(Animator animation) {
+					super.onAnimationEnd(animation);
+					keyboardView.setVisibility(View.GONE);
+					keyboardView.setEnabled(false);
+				}
+			});
     }
 
     public void registerEditText(int resid) {
@@ -162,11 +172,8 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
         });
         // disable spell check
         edittext.setInputType(edittext.getInputType() | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-        //
-        // Try to show cursor the complicated way:
-        // @source http://androidpadanam.wordpress.com/2013/05/29/customkeyboard-example/
-        // fixes the cursor not movable bug
-        //
+		// show the cursor
+        // http://androidpadanam.wordpress.com/2013/05/29/customkeyboard-example/
         OnTouchListener otl = new OnTouchListener() {
         	 
             @Override
@@ -210,60 +217,4 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
 	}
-
-//	private void playClick(int keyCode)
-//	{
-//		AudioManager am = (AudioManager)hostActivity.getSystemService(Context.AUDIO_SERVICE);
-//		// set click volume to system volume
-//		int vol = am.getStreamVolume(AudioManager.STREAM_SYSTEM);
-//
-//		if (soundEnabled && vol > 0) {
-//			switch (keyCode) {
-//				case 32:
-//					am.playSoundEffect(AudioManager.FX_KEYPRESS_SPACEBAR, vol);
-//					break;
-//				case Keyboard.KEYCODE_DONE:
-//				case 10:
-//					am.playSoundEffect(AudioManager.FX_KEYPRESS_RETURN, vol);
-//					break;
-//				case Keyboard.KEYCODE_DELETE:
-//					am.playSoundEffect(AudioManager.FX_KEYPRESS_DELETE, vol);
-//					break;
-//				default:
-//					am.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD, vol);
-//			}
-//		}
-//	}
-
-//	public void setSoundPreference()
-//	{
-//		DialogFragment df =new DialogFragment() {
-//			@Override
-//			public Dialog onCreateDialog(Bundle savedInstanceState) {
-//				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-//				final View checkBoxView = getActivity().getLayoutInflater().inflate(R.layout.checkbox, null);
-//
-//				builder.setView(checkBoxView)
-//						.setMessage(R.string.click_sound)
-//						.setPositiveButton("Done", new DialogInterface.OnClickListener() {
-//							public void onClick(DialogInterface dialog, int id) {
-//								// check the checkbox state and set boolean accordingly
-//								soundEnabled = checkBoxView.isEnabled();
-//							}
-//						})
-//						.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//							public void onClick(DialogInterface dialog, int id) {
-//								// User cancelled the dialog, just exit
-//							}
-//						});
-//				return builder.create();
-//			}
-//
-//		};
-//	}
-//
-//	public boolean getEnabled()
-//	{
-//		return soundEnabled;
-//	}
 }

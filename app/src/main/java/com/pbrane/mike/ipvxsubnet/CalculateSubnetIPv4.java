@@ -1,8 +1,7 @@
 package com.pbrane.mike.ipvxsubnet;
 
-//import android.util.Log;
+import android.util.Log;
 
-//import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
@@ -40,6 +39,7 @@ public class CalculateSubnetIPv4 {
 		try {
 			network_bits = Integer.parseInt(tmp[1]);
 		} catch (NumberFormatException e) {
+			Log.e("calculateSubnetCIDR", "NUmberformatException");
 			return false;
 		}
         host_bits = IPV4_ADDR_BITS - network_bits;
@@ -90,6 +90,7 @@ public class CalculateSubnetIPv4 {
 		try {
 			net_bits = Long.bitCount(Long.parseLong(ipToDecimal(tmp[1])));
 		} catch (NumberFormatException e) {
+			Log.e("convertToCIDR", "NUmberformatException");
 			return ipAndMask;
 		}
 		return tmp[0] + "/" + Long.toString(net_bits);
@@ -103,10 +104,7 @@ public class CalculateSubnetIPv4 {
     public long calcHostsPerSubnet()
     {
 		long hosts = (long)Math.pow(2, (double)host_bits);
-		if (hosts < 0) {
-			return 1;
-		}
-		return hosts;
+		return hosts < 0 ? 1 : hosts;
     }
 
     public long calcUsableHosts()
@@ -114,9 +112,9 @@ public class CalculateSubnetIPv4 {
 		long total = calcHostsPerSubnet();
 		long usable = total - 2;
 		if (total == 1) {
-			return 1;
+			usable = 1;
 		} else if (usable < 0) {
-			return 0;
+			usable = 0;
 		}
 		return usable;
     }
@@ -179,6 +177,7 @@ public class CalculateSubnetIPv4 {
 				ipLow = Long.parseLong(ipToDecimal("10.0.0.0"));
 				ipHigh = Long.parseLong(ipToDecimal("10.255.255.255"));
 			} catch (NumberFormatException e) {
+				Log.e("isPrivateIP", "NUmberformatException");
 				return false;
 			}
 		} else if (isClassB(ip)) {
@@ -186,6 +185,7 @@ public class CalculateSubnetIPv4 {
 				ipLow = Long.parseLong(ipToDecimal("172.16.0.0"));
 				ipHigh = Long.parseLong(ipToDecimal("172.31.255.255"));
 			} catch (NumberFormatException e) {
+				Log.e("isPrivateIP", "NUmberformatException");
 				return false;
 			}
 		} else if (isClassC(ip)) {
@@ -193,6 +193,7 @@ public class CalculateSubnetIPv4 {
 				ipLow = Long.parseLong(ipToDecimal("192.168.0.0"));
 				ipHigh = Long.parseLong(ipToDecimal("192.168.255.255"));
 			} catch (NumberFormatException e) {
+				Log.e("isPrivateIP", "NUmberformatException");
 				return false;
 			}
 		}
@@ -207,6 +208,7 @@ public class CalculateSubnetIPv4 {
 			ipLow = Long.parseLong(ipToDecimal("127.0.0.0"));
 			ipHigh = Long.parseLong(ipToDecimal("127.255.255.255"));
 		} catch (NumberFormatException e) {
+			Log.e("isLoopBackOrDiagIP", "NUmberformatException");
 			return false;
 		}
 		return ipDec >= ipLow && ipDec <= ipHigh;
@@ -254,21 +256,26 @@ public class CalculateSubnetIPv4 {
 		String[] octets = getDecimalMaskOctets().split("[.]");
 		long hostbits = 0; // host bits of subnet mask
 
-		switch (getNetworkClass(ipAddr)) {
-			case "A": // n = 8, h = 24 255.0.0.0
-				hostbits = Long.bitCount(Long.parseLong(octets[1]));
-				hostbits += Long.bitCount(Long.parseLong(octets[2]));
-				hostbits += Long.bitCount(Long.parseLong(octets[3]));
-				break;
+		try {
+			switch (getNetworkClass(ipAddr)) {
+				case "A": // n = 8, h = 24 255.0.0.0
+					hostbits = Long.bitCount(Long.parseLong(octets[1]));
+					hostbits += Long.bitCount(Long.parseLong(octets[2]));
+					hostbits += Long.bitCount(Long.parseLong(octets[3]));
+					break;
 
-			case "B": // n = 16, h = 16 255.255.0.0
-				hostbits = Long.bitCount(Long.parseLong(octets[2]));
-				hostbits += Long.bitCount(Long.parseLong(octets[3]));
-				break;
+				case "B": // n = 16, h = 16 255.255.0.0
+					hostbits = Long.bitCount(Long.parseLong(octets[2]));
+					hostbits += Long.bitCount(Long.parseLong(octets[3]));
+					break;
 
-			case "C": // n = 24, h = 8 255.255.255.0
-				hostbits = Long.bitCount(Long.parseLong(octets[3]));
-				break;
+				case "C": // n = 24, h = 8 255.255.255.0
+					hostbits = Long.bitCount(Long.parseLong(octets[3]));
+					break;
+			}
+		} catch (NumberFormatException e) {
+			Log.e("calcAvailableSubNets", "NUmberformatException");
+			hostbits = 0;
 		}
 		return (int)Math.pow(2.0, (double)hostbits);
 	}
@@ -277,20 +284,25 @@ public class CalculateSubnetIPv4 {
 	{
 		String[] octets = base.split("[.]"); // split the ip
 		if (octets.length < 4) {
-//			Log.i("getNextNetwork", "octets.length is less than four!");
+			Log.e("getNextNetwork", "octets.length is less than four!");
 			return base;
 		}
-		if (host_bits <= 8) { // class C
-			octets[3] = Integer.toString(Integer.parseInt(octets[3]) + incremental_value);
-		} else if (host_bits > 8 && host_bits <= 16) { // class B
-			octets[3] = Integer.toString((incremental_value == hosts_per_subnet - 1) ? 255 : 0);
-			octets[2] = Integer.toString(Integer.parseInt(octets[2]) + (incremental_value / 256));
-		} else if (host_bits > 16 && host_bits <= 24) { // class A
-			int octet3 = Integer.parseInt(octets[3]);
-			int octet2 = Integer.parseInt(octets[2]);
-			octets[3] = Integer.toString(octet3 == 255 ? 0 : 255);
-			octets[2] = Integer.toString(octet2 == 255 ? 0 : 255);
-			octets[1] = Integer.toString(Integer.parseInt(octets[1]) + (incremental_value / 256));
+		try {
+			if (host_bits <= 8) { // class C
+				octets[3] = Integer.toString(Integer.parseInt(octets[3]) + incremental_value);
+			} else if (host_bits > 8 && host_bits <= 16) { // class B
+				octets[3] = Integer.toString((incremental_value == hosts_per_subnet - 1) ? 255 : 0);
+				octets[2] = Integer.toString(Integer.parseInt(octets[2]) + (incremental_value / 256));
+			} else if (host_bits > 16 && host_bits <= 24) { // class A
+				int octet3 = Integer.parseInt(octets[3]);
+				int octet2 = Integer.parseInt(octets[2]);
+				octets[3] = Integer.toString(octet3 == 255 ? 0 : 255);
+				octets[2] = Integer.toString(octet2 == 255 ? 0 : 255);
+				octets[1] = Integer.toString(Integer.parseInt(octets[1]) + (incremental_value / 256));
+			}
+		} catch (NumberFormatException e) {
+			Log.e("getNextNetwork", "NUmberformatException");
+			return base;
 		}
 		return octets[0] + "." + octets[1] + "." + octets[2] + "." + octets[3];
 	}
@@ -299,7 +311,7 @@ public class CalculateSubnetIPv4 {
 	{
 		String[] octets = base.split("[.]");
 		if (octets.length < 4) {
-//			Log.i("getBaseNetwork", "octets.length is less than four!");
+			Log.e("getBaseNetwork", "octets.length is less than four!");
 			return base;
 		}
 		switch (getNetworkClass(base)) {
