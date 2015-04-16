@@ -4,9 +4,9 @@ android {
     signingConfigs {
         release {
             keyAlias 'android'
-            keyPassword 'ds1b8zs'
+            keyPassword System.getenv("KEYPWD")
             storeFile file('/home/mike/.keystore-android.jks')
-            storePassword 'ds1b8zs'
+            storePassword System.getenv("KSTOREPWD")
         }
     }
     compileSdkVersion 21
