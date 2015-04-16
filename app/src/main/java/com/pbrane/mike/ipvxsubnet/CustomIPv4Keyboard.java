@@ -97,7 +97,7 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
 			}
 		};
 		keyboardView.setOnKeyboardActionListener(onKeyboardActionListener);
-        // Hide the default keyboard initially
+        // Hide the system keyboard initially
         hostActivity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 

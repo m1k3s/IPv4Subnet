@@ -25,7 +25,7 @@ import java.text.NumberFormat;
 public class IPv4Activity extends Activity {
 
 	private String version;
-	private String build;
+//	private String build;
 	public static final int MAX_RANGES = 32; // maximum count of network ranges to display
     private CalculateSubnetIPv4 subnet4 = new CalculateSubnetIPv4();
     private TextView textView;
@@ -41,17 +41,7 @@ public class IPv4Activity extends Activity {
 
         setContentView(R.layout.activity_ipvx);
 
-		PackageInfo pacInfo;
-		try {
-			pacInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_ACTIVITIES);
-			String[] tmp = pacInfo.versionName.split("-");
-			version = tmp[0];
-			build = tmp.length > 1 ? tmp[1] : "";
-//			Log.e("versionCode", String.format("%s", pacInfo.versionCode));
-//			Log.e("versionName", String.format("%s", pacInfo.versionName));
-		} catch (PackageManager.NameNotFoundException e) {
-			Log.e("NameNotFoundException", e.toString());
-		}
+		version = getVersionString();
 
 		// Setup the textview widget
         textView = (TextView) findViewById(R.id.textView);
@@ -145,6 +135,25 @@ public class IPv4Activity extends Activity {
 			}
 		});
     }
+
+	public String getVersionString()
+	{
+		PackageInfo pacInfo;
+		String version;
+		String build = "";
+		try {
+			pacInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_ACTIVITIES);
+			String[] tmp = pacInfo.versionName.split("-");
+			version = tmp[0];
+			build = tmp.length > 1 ? tmp[1] : "";
+		} catch (PackageManager.NameNotFoundException e) {
+			Log.e("NameNotFoundException", e.toString());
+			version = "kr4p";
+		}
+		String padding = "0000"; // 4 digits in build number
+		String result = padding + build;
+		return version + "." + result.substring(result.length() - padding.length(), result.length());
+	}
 
 	private abstract class TextValidator implements TextWatcher {
 		private final TextView textView;
@@ -264,7 +273,7 @@ public class IPv4Activity extends Activity {
 				+ "<font color=#C5C5C5><u><b>Michael</b></u></font>"
 				+ "<font color=#DF0000><u>Sheppard</u></font>"
 				+ "<font color=#4169E1>\u00A0-\u00A0<b>&copy 2015</b></font>"
-				+ "<font color=#C5C5C5>\u00A0v" + version + "-" + build + "</font>\n";
+				+ "<font color=#C5C5C5>\u00A0v" + version + "</font>\n";
 
 		textView.append("\n\n");
 		textView.append(Html.fromHtml(logoString));
