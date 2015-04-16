@@ -25,7 +25,6 @@ import java.text.NumberFormat;
 public class IPv4Activity extends Activity {
 
 	private String version;
-//	private String build;
 	public static final int MAX_RANGES = 32; // maximum count of network ranges to display
     private CalculateSubnetIPv4 subnet4 = new CalculateSubnetIPv4();
     private TextView textView;
