@@ -298,12 +298,12 @@ public class IPv4Activity extends Activity {
 
 	public String formatNumber(long number) {
 		String result = "";
-		if (number < 10000000) { // 0 to 999.999K
+		if (number < 1e6) { // 0 to 999.999K
 			result = String.format("%d", number);
-		} else if (number >= 10000000 && number < 100000000) { // 1M to 99.999999M
-			result = String.format("%.4fM", number / 1000000.0);
-		} else if (number >= 100000000) { // 100M and above
-			result = String.format("%.4fG", number / 1000000000.0);
+		} else if (number >= 1e6 && number < 1e8) { // 1M to 99.999999M
+			result = String.format("%.4fM", number / 1e6);
+		} else if (number >= 1e8) { // 100M and above
+			result = String.format("%.4fG", number / 1e9);
 		}
 		return result;
 	}
