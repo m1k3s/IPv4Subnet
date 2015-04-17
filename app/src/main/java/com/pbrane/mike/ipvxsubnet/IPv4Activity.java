@@ -27,10 +27,10 @@ public class IPv4Activity extends Activity {
 
 	private String version;
 	public static final int MAX_RANGES = 32; // maximum count of network ranges to display
-	private CalculateSubnetIPv4 subnet4 = new CalculateSubnetIPv4();
+	private CalculateSubnetIPv4 subnet4 = CalculateSubnetIPv4.INSTANCE;
 	private TextView textView;
 	private EditText editText;
-	private CustomIPv4Keyboard customIPv4Keyboard;
+	private CustomIPv4Keyboard customIPv4Keyboard = CustomIPv4Keyboard.INSTANCE;
 
 	private enum AddrType {CIDR, IP_NETMASK, IP_ONLY, MULTICAST, RESERVED, INVALID}
 
@@ -53,7 +53,7 @@ public class IPv4Activity extends Activity {
 		editText = (EditText) findViewById(R.id.editText);
 
 		// initialize the instance variable customIPv4Keyboard
-		customIPv4Keyboard = new CustomIPv4Keyboard(this, R.id.keyboardview, R.xml.keyboard);
+		customIPv4Keyboard.init(this, R.id.keyboardview, R.xml.keyboard);
 		// register the edittext
 		customIPv4Keyboard.registerEditText(R.id.editText);
 

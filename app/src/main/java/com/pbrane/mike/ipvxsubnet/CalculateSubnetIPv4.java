@@ -29,6 +29,13 @@ public class CalculateSubnetIPv4 {
 	private int available_subnets;
 	private String[] ranges;
 
+	public final static CalculateSubnetIPv4 INSTANCE = new CalculateSubnetIPv4();
+
+	private CalculateSubnetIPv4() // avoids instantiation
+	{
+
+	}
+
 	public boolean calculateSubnetCIDR(String ipAddr_mask) {
 		String[] tmp = ipAddr_mask.split("/"); // split the IP and mask bits
 		if (tmp.length < 2) {  // make sure the split was successful

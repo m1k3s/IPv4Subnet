@@ -27,8 +27,14 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
 
 	private KeyboardView keyboardView;
 	private Activity hostActivity;
+	public final static CustomIPv4Keyboard INSTANCE = new CustomIPv4Keyboard();
 
-	public CustomIPv4Keyboard(Activity host, int viewID, int layoutID) {
+	private CustomIPv4Keyboard() // avoids instantiation
+	{
+
+	}
+
+	public void init(Activity host, int viewID, int layoutID) {
 		hostActivity = host;
 		keyboardView = (KeyboardView) hostActivity.findViewById(viewID);
 		keyboardView.setKeyboard(new Keyboard(hostActivity, layoutID));
