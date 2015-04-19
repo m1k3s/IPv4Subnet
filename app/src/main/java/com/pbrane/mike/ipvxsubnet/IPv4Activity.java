@@ -153,9 +153,13 @@ public class IPv4Activity extends Activity {
 			Log.e("NameNotFoundException", e.toString());
 			version = "kr4p";
 		}
-		String padding = "0000"; // 4 digits in build number
-		String result = padding + build;
-		return version + "." + result.substring(result.length() - padding.length(), result.length());
+		if (build.equalsIgnoreCase("dirty")) {
+			return version + "." + "dev";
+		} else {
+			String padding = "0000"; // 4 digits in build number
+			String result = padding + build;
+			return version + "." + result.substring(result.length() - padding.length(), result.length());
+		}
 	}
 
 	private abstract class TextValidator implements TextWatcher {
@@ -268,7 +272,7 @@ public class IPv4Activity extends Activity {
 				+ "<font color=#C5C5C5><u><b>Michael</b></u></font>"
 				+ "<font color=#DF0000><u>Sheppard</u></font>"
 				+ "<font color=#4169E1>\u00A0-\u00A0<b>&copy 2015</b></font>"
-				+ "<font color=#C5C5C5>\u00A0v" + version + "</font>\n";
+				+ "<font color=#C5C5C5>\u00A0" + version + "</font>\n";
 
 		textView.append("\n\n");
 		textView.append(Html.fromHtml(logoString));
