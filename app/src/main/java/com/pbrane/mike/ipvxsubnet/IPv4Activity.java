@@ -147,9 +147,13 @@ public class IPv4Activity extends Activity {
 			Log.e("NameNotFoundException", e.toString());
 			version = "kr4p";
 		}
-		String padding = "0000"; // 4 digits in build number
-		String result = padding + build;
-		return version + "." + result.substring(result.length() - padding.length(), result.length());
+		if (build.equalsIgnoreCase("dirty")) {
+			return version + "." + "dev";
+		} else {
+			String padding = "0000"; // 4 digits in build number
+			String result = padding + build;
+			return version + "." + result.substring(result.length() - padding.length(), result.length());
+		}
 	}
 
 	private abstract class TextValidator implements TextWatcher {
