@@ -28,6 +28,7 @@ public class IPv4Activity extends Activity {
 	private String version;
 	public static final int MAX_RANGES = 32; // maximum count of network ranges to display
 	private CalculateSubnetIPv4 subnet4 = CalculateSubnetIPv4.INSTANCE;
+	private CalculateSubnetIPv6 subnet6 = CalculateSubnetIPv6.INSTANCE;
 	private TextView textView;
 	private EditText editText;
 	private CustomIPv4Keyboard customIPv4Keyboard = CustomIPv4Keyboard.INSTANCE;
@@ -56,6 +57,11 @@ public class IPv4Activity extends Activity {
 		customIPv4Keyboard.init(this, R.id.keyboardview, R.xml.keyboard);
 		// register the edittext
 		customIPv4Keyboard.registerEditText(R.id.editText);
+
+		// IPv6 TEST ***
+		Log.i("ModdedEUI64", subnet6.MACToModifiedEUI64("00:1c:bf:62:e7:13"));
+		Log.i("LinkLocal IP", subnet6.linkLocalIPv6(subnet6.MACToModifiedEUI64("00:1c:bf:62:e7:13")));
+		Log.i("Decompressed IP", subnet6.decompress(subnet6.linkLocalIPv6(subnet6.MACToModifiedEUI64("00:1c:bf:62:e7:13"))));
 
 		editText.setKeyListener(new DialerKeyListener() {
 			@Override
