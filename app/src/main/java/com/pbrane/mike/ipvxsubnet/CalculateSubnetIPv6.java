@@ -63,7 +63,7 @@ public class CalculateSubnetIPv6 {
 		// Store the location where you need to add zeroes that were removed during decompression
 		int doubleColonIndex = ipv6.indexOf("::");
 
-		// if address was compressed and zeroes were removed, remove "::"
+		// if address was compressed, remove "::"
 		if (doubleColonIndex != -1) {
 			ipv6.replace(doubleColonIndex, doubleColonIndex + 2, ":");
 		}
@@ -74,13 +74,10 @@ public class CalculateSubnetIPv6 {
 		for (int i = 0; i < addressComponents.length; i++) {
 			StringBuilder decompressedComponent = new StringBuilder("");
 			for (int j = 0; j < 4 - addressComponents[i].length(); j++) {
-
 				// pad missing leading zeroes during compression
 				decompressedComponent.append("0");
-
 			}
 			decompressedComponent.append(addressComponents[i]);
-
 			// replace the compressed component with the decompressed one
 			addressComponents[i] = decompressedComponent.toString();
 		}
