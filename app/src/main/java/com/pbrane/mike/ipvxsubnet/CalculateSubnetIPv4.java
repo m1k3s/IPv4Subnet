@@ -45,7 +45,7 @@ public class CalculateSubnetIPv4 {
 		try {
 			network_bits = Integer.parseInt(tmp[1]);
 		} catch (NumberFormatException e) {
-			Log.e("calculateSubnetCIDR", "NUmberformatException");
+			Log.e("calculateSubnetCIDR", "NumberFormatException");
 			return false;
 		}
 		host_bits = IPV4_ADDR_BITS - network_bits;
@@ -92,7 +92,7 @@ public class CalculateSubnetIPv4 {
 		try {
 			net_bits = Long.bitCount(Long.parseLong(ipToDecimal(tmp[1])));
 		} catch (NumberFormatException e) {
-			Log.e("convertToCIDR", "NUmberformatException");
+			Log.e("convertToCIDR", "NumberFormatException");
 			return ipAndMask;
 		}
 		return tmp[0] + "/" + Long.toString(net_bits);
@@ -172,7 +172,7 @@ public class CalculateSubnetIPv4 {
 				ipLow = Long.parseLong(ipToDecimal("10.0.0.0"));
 				ipHigh = Long.parseLong(ipToDecimal("10.255.255.255"));
 			} catch (NumberFormatException e) {
-				Log.e("isPrivateIP", "NUmberformatException");
+				Log.e("isPrivateIP", "NumberFormatException");
 				return false;
 			}
 		} else if (isClassB(ip)) {
@@ -180,7 +180,7 @@ public class CalculateSubnetIPv4 {
 				ipLow = Long.parseLong(ipToDecimal("172.16.0.0"));
 				ipHigh = Long.parseLong(ipToDecimal("172.31.255.255"));
 			} catch (NumberFormatException e) {
-				Log.e("isPrivateIP", "NUmberformatException");
+				Log.e("isPrivateIP", "NumberFormatException");
 				return false;
 			}
 		} else if (isClassC(ip)) {
@@ -188,7 +188,7 @@ public class CalculateSubnetIPv4 {
 				ipLow = Long.parseLong(ipToDecimal("192.168.0.0"));
 				ipHigh = Long.parseLong(ipToDecimal("192.168.255.255"));
 			} catch (NumberFormatException e) {
-				Log.e("isPrivateIP", "NUmberformatException");
+				Log.e("isPrivateIP", "NumberFormatException");
 				return false;
 			}
 		}
@@ -202,7 +202,7 @@ public class CalculateSubnetIPv4 {
 			ipLow = Long.parseLong(ipToDecimal("127.0.0.0"));
 			ipHigh = Long.parseLong(ipToDecimal("127.255.255.255"));
 		} catch (NumberFormatException e) {
-			Log.e("isLoopBackOrDiagIP", "NUmberformatException");
+			Log.e("isLoopBackOrDiagIP", "NumberFormatException");
 			return false;
 		}
 		return ipDec >= ipLow && ipDec <= ipHigh;
@@ -239,7 +239,7 @@ public class CalculateSubnetIPv4 {
 		return octets.length > 0 && (octetToBinary(octets[0]).startsWith("1111"));
 	}
 
-	// Calculates subnets from a valid mask. _Not_ CIDR or VLSM
+	// Calculates subnets from a valid mask. _Not_ IP_CIDR or VLSM
 	public int calcAvailableSubnets() {
 		String[] octets = getDecimalMaskOctets().split("[.]");
 		long hostbits = 0; // host bits of subnet mask
@@ -262,7 +262,7 @@ public class CalculateSubnetIPv4 {
 					break;
 			}
 		} catch (NumberFormatException e) {
-			Log.e("calcAvailableSubNets", "NUmberformatException");
+			Log.e("calcAvailableSubNets", "NumberFormatException");
 			hostbits = 0;
 		}
 		return (int) Math.pow(2.0, (double) hostbits);
@@ -288,7 +288,7 @@ public class CalculateSubnetIPv4 {
 				octets[1] = Integer.toString(Integer.parseInt(octets[1]) + (incremental_value / 256));
 			}
 		} catch (NumberFormatException e) {
-			Log.e("getNextNetwork", "NUmberformatException");
+			Log.e("getNextNetwork", "NumberFormatException");
 			return base;
 		}
 		return octets[0] + "." + octets[1] + "." + octets[2] + "." + octets[3];

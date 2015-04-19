@@ -55,7 +55,8 @@ android {
             applicationVariants.all { variant ->
                 variant.outputs.each { output ->
                     def vstr = variant.versionName.toString().split("-")
-                    output.outputFile = new File(output.outputFile.parent, output.outputFile.name.replace("app-release", "ipvxsubnet-" + vstr[0] + "-" + vstr[1]))
+                    def appName = "ipvxsubnet-" + vstr[0] + "-" + vstr[1]
+                    output.outputFile = new File(output.outputFile.parent, output.outputFile.name.replace("app-release", appName))
                 }
             }
         }

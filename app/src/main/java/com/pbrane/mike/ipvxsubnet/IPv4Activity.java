@@ -25,17 +25,17 @@ import java.text.NumberFormat;
 
 public class IPv4Activity extends Activity {
 
-	private String version;
 	public static final int MAX_RANGES = 32; // maximum count of network ranges to display
 	private CalculateSubnetIPv4 subnet4 = CalculateSubnetIPv4.INSTANCE;
 	private CalculateSubnetIPv6 subnet6 = CalculateSubnetIPv6.INSTANCE;
-	private TextView textView;
-	private EditText editText;
 	private CustomIPv4Keyboard customIPv4Keyboard = CustomIPv4Keyboard.INSTANCE;
 
-	private enum AddrType {CIDR, IP_NETMASK, IP_ONLY, MULTICAST, RESERVED, INVALID}
+	private TextView textView;
+	private EditText editText;
+	private String version;
 
-	private AddrType addrType = AddrType.INVALID; // initialize to invalid
+	private enum AddrType {IP_CIDR, IP_NETMASK, IP_ONLY, IP_MULTICAST, IP_RESERVED, IP_INVALID}
+	private AddrType addrType = AddrType.IP_INVALID; // initialize to invalid
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +60,7 @@ public class IPv4Activity extends Activity {
 
 		// IPv6 TEST ***
 		Log.i("ModdedEUI64", subnet6.MACToModifiedEUI64("00:1c:bf:62:e7:13"));
-		Log.i("LinkLocal IP", subnet6.linkLocalIPv6(subnet6.MACToModifiedEUI64("00:1c:bf:62:e7:13")));
+		Log.i("LinkLocal IP", subnet6.linkLocalIPv6(subnet6.MACToModifiedEUI64("00:1c:bf:62:e7:13")) + "/64");
 		Log.i("Decompressed IP", subnet6.decompress(subnet6.linkLocalIPv6(subnet6.MACToModifiedEUI64("00:1c:bf:62:e7:13"))));
 
 		editText.setKeyListener(new DialerKeyListener() {
@@ -87,24 +87,24 @@ public class IPv4Activity extends Activity {
 				// crap check - not valid if empty or doesn't start with a digit
 				if (text.isEmpty() || !Character.isDigit(text.charAt(0))) {
 					textView.setTextColor(Color.RED);
-					addrType = AddrType.INVALID;
+					addrType = AddrType.IP_INVALID;
 					return;
 				}
 				// We don't subnet Class D or E
 				if (subnet4.isClassD(text)) {
 					textView.setTextColor(Color.RED);
-					addrType = AddrType.MULTICAST;
+					addrType = AddrType.IP_MULTICAST;
 					return;
 				}
 				if (subnet4.isClassE(text)) {
 					textView.setTextColor(Color.RED);
-					addrType = AddrType.RESERVED;
+					addrType = AddrType.IP_RESERVED;
 					return;
 				}
 				// Class A, B, C networks are okay
 				if (subnet4.validateCIDR(text)) {
 					textView.setTextColor(Color.GREEN);
-					addrType = AddrType.CIDR;
+					addrType = AddrType.IP_CIDR;
 				} else if (subnet4.validateIPAndMaskOctets(text)) {
 					textView.setTextColor(Color.GREEN);
 					addrType = AddrType.IP_NETMASK;
@@ -113,7 +113,7 @@ public class IPv4Activity extends Activity {
 					addrType = AddrType.IP_ONLY;
 				} else {
 					textView.setTextColor(Color.RED);
-					addrType = AddrType.INVALID;
+					addrType = AddrType.IP_INVALID;
 				}
 			}
 		});
@@ -239,7 +239,7 @@ public class IPv4Activity extends Activity {
 	public void validateAndCalculateSubnet(final String ipAddr) {
 		boolean result;
 		switch (addrType) {
-			case CIDR:
+			case IP_CIDR:
 				result = subnet4.calculateSubnetCIDR(ipAddr);
 				break;
 			case IP_NETMASK:
@@ -248,13 +248,13 @@ public class IPv4Activity extends Activity {
 			case IP_ONLY:
 				result = subnet4.calculateSubnetCIDR(ipAddr + "/32"); // assume /32
 				break;
-			case MULTICAST:
+			case IP_MULTICAST:
 				displayMulticastInfoMessage();
 				return;
-			case RESERVED:
+			case IP_RESERVED:
 				displayReservedRangeInfoMessage();
 				return;
-			case INVALID:
+			case IP_INVALID:
 			default:
 				displayError();
 				return;

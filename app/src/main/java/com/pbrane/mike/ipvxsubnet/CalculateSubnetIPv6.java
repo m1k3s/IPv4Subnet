@@ -23,7 +23,7 @@ public class CalculateSubnetIPv6 {
 		// avoid instantiation
 	}
 
-	public void CalculateSubnet(String cidrIP) {
+	public void calculateSubnet(String cidrIP) {
 		String[] tmp = cidrIP.split("[/]");
 		ipAddr = tmp[0];
 		network_bits = Integer.parseInt(tmp[1]);
@@ -48,8 +48,8 @@ public class CalculateSubnetIPv6 {
 	}
 
 	public String MACToModifiedEUI64(String mac) {
-		String[] bytes = mac.split("[:]"); // should be six words
-		String modByte = bitwiseOrByte(bytes[0], "2");
+		String[] bytes = mac.split("[:]"); // should be six bytes separated by colons
+		String modByte = bitwiseOrByte(bytes[0], "2"); // flip the 7th bit from left to a "1"
 		return (modByte + bytes[1] + ":" + bytes[2] + "ff:fe" + bytes[3] + ":" + bytes[4] + bytes[5]).toLowerCase();
 	}
 
@@ -57,54 +57,55 @@ public class CalculateSubnetIPv6 {
 		return "fe80::" + ModdedEUI64;
 	}
 
+	// gleaned from the internet
 	public String decompress(String addr) {
 		StringBuilder ipv6 = new StringBuilder(addr);
-		// Store the location where you need add zeroes that were removed during uncompression
-		int tempCompressLocation = ipv6.indexOf("::");
+		// Store the location where you need to add zeroes that were removed during decompression
+		int doubleColonIndex = ipv6.indexOf("::");
 
-		//if address was compressed and zeroes were removed, remove that marker i.e "::"
-		if (tempCompressLocation != -1) {
-			ipv6.replace(tempCompressLocation, tempCompressLocation + 2, ":");
+		// if address was compressed and zeroes were removed, remove "::"
+		if (doubleColonIndex != -1) {
+			ipv6.replace(doubleColonIndex, doubleColonIndex + 2, ":");
 		}
 
-		//extract rest of the components by splitting them using ":"
+		// extract the rest of the components by splitting them using ":"
 		String[] addressComponents = ipv6.toString().split(":");
 
 		for (int i = 0; i < addressComponents.length; i++) {
-			StringBuilder uncompressedComponent = new StringBuilder("");
+			StringBuilder decompressedComponent = new StringBuilder("");
 			for (int j = 0; j < 4 - addressComponents[i].length(); j++) {
 
-				//add a padding of the ignored zeroes during compression if required
-				uncompressedComponent.append("0");
+				// pad missing leading zeroes during compression
+				decompressedComponent.append("0");
 
 			}
-			uncompressedComponent.append(addressComponents[i]);
+			decompressedComponent.append(addressComponents[i]);
 
-			//replace the compressed component with the uncompressed one
-			addressComponents[i] = uncompressedComponent.toString();
+			// replace the compressed component with the decompressed one
+			addressComponents[i] = decompressedComponent.toString();
 		}
 
-		//Iterate over the uncompressed address components to add the ignored "0000" components depending on position of "::"
-		ArrayList<String> uncompressedAddressComponents = new ArrayList<String>();
+		// iterate over the decompressed address components to add the missing "0000" components at the position of "::"
+		ArrayList<String> decompressedAddressComponents = new ArrayList<String>();
 
 		for (int i = 0; i < addressComponents.length; i++) {
-			if (i == tempCompressLocation / 4) {
+			if (i == doubleColonIndex / 4) {
 				for (int j = 0; j < 8 - addressComponents.length; j++) {
-					uncompressedAddressComponents.add("0000");
+					decompressedAddressComponents.add("0000");
 				}
 			}
-			uncompressedAddressComponents.add(addressComponents[i]);
+			decompressedAddressComponents.add(addressComponents[i]);
 		}
 
-		//iterate over the uncompressed components to append and produce a full address
-		StringBuilder uncompressedAddress = new StringBuilder("");
-		Iterator it = uncompressedAddressComponents.iterator();
+		// iterate over the decompressed components to append and produce a full address
+		StringBuilder decompressedAddress = new StringBuilder("");
+		Iterator it = decompressedAddressComponents.iterator();
 		while (it.hasNext()) {
-			uncompressedAddress.append(it.next().toString());
-			uncompressedAddress.append(":");
+			decompressedAddress.append(it.next().toString());
+			decompressedAddress.append(":");
 		}
-		uncompressedAddress.replace(uncompressedAddress.length() - 1, uncompressedAddress.length(), "");
-		return uncompressedAddress.toString();
+		decompressedAddress.replace(decompressedAddress.length() - 1, decompressedAddress.length(), "");
+		return decompressedAddress.toString();
 	}
 
 	public String ipToBinary(String ip, boolean split) {
@@ -113,7 +114,7 @@ public class CalculateSubnetIPv6 {
 		String binary = "";
 
 		for (int k = 0; k < count; k++) {
-			binary += byteToBinary(octets[k]);
+			binary += wordToBinary(octets[k]);
 			if (split && k != (count - 1)) {
 				binary += ":";
 			}
@@ -122,14 +123,14 @@ public class CalculateSubnetIPv6 {
 	}
 
 	// leading zero pad the word manually, toBinaryString doesn't
-	public String byteToBinary(String octet) {
+	public String wordToBinary(String octet) {
 		String padding = "0000000000000000"; // 16 bits in a word
 		String result = padding + Integer.toBinaryString(Integer.parseInt(octet, 16));
 		return result.substring(result.length() - padding.length(), result.length());
 	}
 
 	// leading zero pad the hex chars manually, toHexString doesn't
-	public String byteToHex(String octet) {
+	public String wordToHex(String octet) {
 		String padding = "0000"; // 4 hex characters in a word
 		String result = padding + Integer.toHexString(Integer.parseInt(octet));
 		return result.substring(result.length() - padding.length(), result.length());
