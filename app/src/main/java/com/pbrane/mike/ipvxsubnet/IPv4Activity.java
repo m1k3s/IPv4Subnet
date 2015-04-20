@@ -75,7 +75,7 @@ public class IPv4Activity extends Activity {
 			}
 		});
 		// validate IP address as it's entered
-		editText.addTextChangedListener(new TextValidator(editText) {
+		editText.addTextChangedListener(new IPAddressValidator(editText) {
 			@Override
 			public void validate(TextView textView, String text) {
 				// crap check - not valid if empty or doesn't start with a digit
@@ -156,10 +156,10 @@ public class IPv4Activity extends Activity {
 		}
 	}
 
-	private abstract class TextValidator implements TextWatcher {
+	private abstract class IPAddressValidator implements TextWatcher {
 		private final TextView validatorTextView;
 
-		public TextValidator(EditText editText) {
+		public IPAddressValidator(EditText editText) {
 			this.validatorTextView = editText;
 		}
 
