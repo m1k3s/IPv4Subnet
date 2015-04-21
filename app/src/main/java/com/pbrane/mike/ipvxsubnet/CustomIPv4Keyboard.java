@@ -39,9 +39,6 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
 		keyboardView = (KeyboardView) hostActivity.findViewById(viewID);
 		keyboardView.setKeyboard(new Keyboard(hostActivity, layoutID));
 		keyboardView.setPreviewEnabled(false); // do not show preview balloons
-//		keyboardView.setVisibility(View.GONE);
-//		keyboardView.setEnabled(false);
-//		keyboardView.setAlpha(0.0f);
 
 		OnKeyboardActionListener onKeyboardActionListener = new OnKeyboardActionListener() {
 			@Override
