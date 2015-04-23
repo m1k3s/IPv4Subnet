@@ -22,7 +22,9 @@
         android:textColorHint="#c5c5c5"
         android:singleLine="true"
         android:layout_alignEnd="@+id/scroller"
-        android:background="#000000"/>
+        android:background="@xml/editborder"
+        android:clickable="true"
+        android:editable="true"/>
 
     <ScrollView
         android:id="@+id/scroller"
