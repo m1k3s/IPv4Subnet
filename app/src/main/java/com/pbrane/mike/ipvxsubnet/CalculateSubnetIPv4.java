@@ -11,6 +11,7 @@ public class CalculateSubnetIPv4 {
 	private static final int CLASS_B_HOSTS = 65536;
 	private static final int CLASS_C_HOSTS = 256;
 	private static final int IPV4_ADDR_BITS = 32;
+	public static final int MAX_RANGES = 32; // maximum count of network ranges to display
 	private static final String IP_ADDRESS = "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])";
 	private static final String CIDR = IP_ADDRESS + "(/([0-9]|[1-2][0-9]|3[0-2]))";
 	private static final Pattern addressPattern = Pattern.compile("^" + IP_ADDRESS + "$");
@@ -62,7 +63,7 @@ public class CalculateSubnetIPv4 {
 		available_subnets = calcAvailableSubnets(); // available networks in this subnet
 
 		// calculate all subnet ranges if the number of subnets is less than MAX_RANGES
-		if (available_subnets <= IPv4Activity.MAX_RANGES) {
+		if (available_subnets <= MAX_RANGES) {
 			ranges = calculateNetworkRanges();
 		} else { // calculate just the host network ranges
 			ranges = calculateRangeOfHostNetwork();
@@ -320,7 +321,7 @@ public class CalculateSubnetIPv4 {
 	}
 
 	public String[] calculateNetworkRanges() {
-		int nets = available_subnets > IPv4Activity.MAX_RANGES ? IPv4Activity.MAX_RANGES : available_subnets;
+		int nets = available_subnets > MAX_RANGES ? MAX_RANGES : available_subnets;
 		String[] networks = new String[nets];
 		String base, top;
 

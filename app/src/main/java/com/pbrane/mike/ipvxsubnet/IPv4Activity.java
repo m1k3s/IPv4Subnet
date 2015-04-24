@@ -26,7 +26,6 @@ import java.text.NumberFormat;
 public class IPv4Activity extends Activity {
 
 	private String version;
-	public static final int MAX_RANGES = 32; // maximum count of network ranges to display
 	private CalculateSubnetIPv4 subnet4 = CalculateSubnetIPv4.INSTANCE;
 	private TextView textView;
 	private EditText editText;
@@ -115,11 +114,13 @@ public class IPv4Activity extends Activity {
 		if (savedInstanceState != null) { // restore saved state
 			String ipAddr = savedInstanceState.getString("IPAddr");
 			editText.setText(ipAddr);
+			editText.setSelection(ipAddr.length());
 			validateAndCalculateSubnet(ipAddr);
 		} else { // get the last IP/mask used and insert in editText
 			SharedPreferences sharedPref = this.getPreferences(MODE_PRIVATE);
 			String ipAddr = sharedPref.getString(getString(R.string.savedIPv4), "");
 			editText.setText(ipAddr);
+			editText.setSelection(ipAddr.length());
 		}
 
 		// hide the softkeyboard when the textview is clicked
@@ -198,6 +199,7 @@ public class IPv4Activity extends Activity {
 
 		String ipAddr = savedInstanceState.getString("IPAddr");
 		editText.setText(ipAddr);
+		editText.setSelection(ipAddr.length());
 		validateAndCalculateSubnet(ipAddr);
 	}
 
