@@ -269,6 +269,22 @@ public class CalculateSubnetIPv4 {
 		return (int) Math.pow(2.0, (double) hostbits);
 	}
 
+	public String getNextIPAddress(String ip)
+	{
+		String[] octets = ip.split("[.]");
+		if (octets.length < 4) {
+			Log.e("getNextIPAddress", "octets.length is less than four!");
+			return ip;
+		}
+		try {
+			octets[3] = Integer.toString(Integer.parseInt(octets[3]) + 1);
+		} catch (NumberFormatException e) {
+			Log.e("getNextIPAddress", "NumberFormatException");
+			return ip;
+		}
+		return octets[0] + "." + octets[1] + "." + octets[2] + "." + octets[3];
+	}
+
 	public String getNextNetwork(String base, int incremental_value) {
 		String[] octets = base.split("[.]"); // split the ip
 		if (octets.length < 4) {

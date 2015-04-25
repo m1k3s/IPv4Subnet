@@ -369,7 +369,7 @@ public class IPv4Activity extends Activity {
 
 		// [CIDR]
 		textView.append(Html.fromHtml("<font color=#00BFFF><b>[CIDR]</b></font><br>"));
-		textView.append(String.format("%-25s%s\n", "Host Address:", hostIP));
+		textView.append(String.format("%-25s%s\n", "Host Address:", subnet4.getNextIPAddress(subnet4.getMinHostAddr())));
 		textView.append(String.format("%-25s%s\n", "Host Address (decimal):", subnet4.getIpAddrDecimal()));
 		textView.append(String.format("%-25s%s\n", "Host Address (hex):", subnet4.getIpAddrHex()));
 		textView.append(String.format("%-25s%s\n", "Network Address:", subnet4.getNetwork()));
@@ -447,7 +447,7 @@ public class IPv4Activity extends Activity {
 		if (subnet4.isLoopBackOrDiagIP(hostIP)) {
 			textView.append("\n");
 			String loopIPComment = "<font color=#FFD700> * This host IP address is in the range of IPs"
-					+ " used for loopback and diagnostic purposes.</font><br>";
+					+ " used for loopback and diagnostic purposes.<br>Range: 127.0.0.0 to 127.255.255.25</font><br>";
 			textView.append(Html.fromHtml(loopIPComment));
 		}
 		if (subnet4.isPrivateIP(hostIP)) {
