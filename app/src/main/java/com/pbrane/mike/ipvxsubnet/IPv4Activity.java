@@ -120,7 +120,7 @@ public class IPv4Activity extends Activity {
 			SharedPreferences sharedPref = this.getPreferences(MODE_PRIVATE);
 			String ipAddr = sharedPref.getString(getString(R.string.savedIPv4), "");
 			editText.setText(ipAddr);
-			editText.setSelection(ipAddr.length());
+			editText.setSelection(ipAddr == null ? 0 : ipAddr.length());
 		}
 
 		// hide the softkeyboard when the textview is clicked
