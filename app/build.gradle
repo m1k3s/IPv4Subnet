@@ -39,7 +39,7 @@ android {
         }
     }
     compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    buildToolsVersion '22.0.1'
     defaultConfig {
         applicationId 'com.pbrane.mike.ipvxsubnet'
         minSdkVersion 19

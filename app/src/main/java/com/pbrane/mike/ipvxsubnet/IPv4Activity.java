@@ -120,7 +120,7 @@ public class IPv4Activity extends Activity {
 			SharedPreferences sharedPref = this.getPreferences(MODE_PRIVATE);
 			String ipAddr = sharedPref.getString(getString(R.string.savedIPv4), "");
 			editText.setText(ipAddr);
-			editText.setSelection(ipAddr == null ? 0 : ipAddr.length());
+			editText.setSelection(ipAddr.length());
 		}
 
 		// hide the softkeyboard when the textview is clicked
@@ -426,6 +426,8 @@ public class IPv4Activity extends Activity {
 				if (low.equals(subnet4.getNetwork())) {
 					textView.append(String.format("%3d. %-15s - %-15s", count, low, high));
 					textView.append(Html.fromHtml("<font color=#00ff00><b>\u00A0&lt==</b></font><br>\n"));
+					// fixme: using html causes a loss of formating in the string.
+//					textView.append(Html.fromHtml("<font color=#00ff00><b>" + String.format("%3d. %-15s - %-15s", count, low, high) + "</b></font><br>\n"));
 				} else {
 					textView.append(String.format("%3d. %-15s - %-15s\n", count, low, high));
 				}
