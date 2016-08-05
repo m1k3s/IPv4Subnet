@@ -21,6 +21,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.text.NumberFormat;
+import java.util.Locale;
 
 
 public class IPv4Activity extends Activity {
@@ -114,7 +115,7 @@ public class IPv4Activity extends Activity {
 		if (savedInstanceState != null) { // restore saved state
 			String ipAddr = savedInstanceState.getString("IPAddr");
 			editText.setText(ipAddr);
-			editText.setSelection(ipAddr.length());
+//			editText.setSelection(ipAddr.length());
 			validateAndCalculateSubnet(ipAddr);
 		} else { // get the last IP/mask used and insert in editText
 			SharedPreferences sharedPref = this.getPreferences(MODE_PRIVATE);
@@ -199,7 +200,7 @@ public class IPv4Activity extends Activity {
 
 		String ipAddr = savedInstanceState.getString("IPAddr");
 		editText.setText(ipAddr);
-		editText.setSelection(ipAddr.length());
+//		editText.setSelection(ipAddr.length());
 		validateAndCalculateSubnet(ipAddr);
 	}
 
@@ -305,11 +306,11 @@ public class IPv4Activity extends Activity {
 	public String formatNumber(long number) {
 		String result = "";
 		if (number < 1e6) { // 0 to 999.999K
-			result = String.format("%d", number);
+			result = String.format(Locale.US, "%d", number);
 		} else if (number >= 1e6 && number < 1e8) { // 1M to 99.999999M
-			result = String.format("%.4fM", number / 1e6);
+			result = String.format(Locale.US, "%.4fM", number / 1e6);
 		} else if (number >= 1e8) { // 100M and above
-			result = String.format("%.4fG", number / 1e9);
+			result = String.format(Locale.US, "%.4fG", number / 1e9);
 		}
 		return result;
 	}
@@ -416,7 +417,7 @@ public class IPv4Activity extends Activity {
 		// [Networks]
 		textView.append(Html.fromHtml("<font color=#00BFFF><b>[Networks]</b></font><br>"));
 		if (usable == 1) { // only one host
-			textView.append(String.format("%3d. %-15s -\n", 1, hostIP));
+			textView.append(String.format(Locale.US, "%3d. %-15s -\n", 1, hostIP));
 		} else if (usable > 1) { // one or more subnets
 			String[] ranges = subnet4.getRanges();
 			int count = 1;
@@ -424,12 +425,12 @@ public class IPv4Activity extends Activity {
 				String low = range.split(" - ")[0];
 				String high = range.split(" - ")[1];
 				if (low.equals(subnet4.getNetwork())) {
-					textView.append(String.format("%3d. %-15s - %-15s", count, low, high));
+					textView.append(String.format(Locale.US, "%3d. %-15s - %-15s", count, low, high));
 					textView.append(Html.fromHtml("<font color=#00ff00><b>\u00A0&lt==</b></font><br>\n"));
 					// fixme: using html causes a loss of formating in the string.
 //					textView.append(Html.fromHtml("<font color=#00ff00><b>" + String.format("%3d. %-15s - %-15s", count, low, high) + "</b></font><br>\n"));
 				} else {
-					textView.append(String.format("%3d. %-15s - %-15s\n", count, low, high));
+					textView.append(String.format(Locale.US, "%3d. %-15s - %-15s\n", count, low, high));
 				}
 				count++;
 			}
