@@ -4,3 +4,7 @@
 /.idea/libraries
 .DS_Store
 /build
+.idea/encodings.xml
+.idea/inspectionProfiles/
+.idea/runConfigurations.xml
+app/ipvxsubnet-v1.0.6-13.apk
