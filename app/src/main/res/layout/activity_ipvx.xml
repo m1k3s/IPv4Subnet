@@ -21,7 +21,10 @@
         android:hint="@string/ip_hint"
         android:textColorHint="#c5c5c5"
         android:singleLine="true"
-        android:layout_alignEnd="@+id/scroller"/>
+        android:layout_alignEnd="@+id/scroller"
+        android:background="@xml/editborder"
+        android:clickable="true"
+        android:editable="true"/>
 
     <ScrollView
         android:id="@+id/scroller"
@@ -29,7 +32,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/editText"
         android:fillViewport="true"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:background="#000000">
 
         <TextView
             android:labelFor="@id/editText"
@@ -38,7 +42,8 @@
             android:id="@+id/textView"
             android:freezesText="false"
             android:textAlignment="viewStart"
-            android:singleLine="false"/>
+            android:singleLine="false"
+            android:background="#000000"/>
     </ScrollView>
 
     <!-- custom keyboard -->

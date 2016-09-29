@@ -38,8 +38,8 @@ android {
             storePassword System.getenv("KSTOREPWD")
         }
     }
-    compileSdkVersion 21
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 22
+    buildToolsVersion '22.0.1'
     defaultConfig {
         applicationId 'com.pbrane.mike.ipvxsubnet'
         minSdkVersion 19
@@ -55,8 +55,9 @@ android {
             applicationVariants.all { variant ->
                 variant.outputs.each { output ->
                     def vstr = variant.versionName.toString().split("-")
+                    def appName = "ipvxsubnet-" + vstr[0] + "-" + vstr[1]
                     output.outputFile = new File(output.outputFile.parent,
-                            output.outputFile.name.replace("app-release", "ipvxsubnet-" + vstr[0] + "-" + vstr[1]))
+                            output.outputFile.name.replace("app-release", appName))
                 }
             }
         }
