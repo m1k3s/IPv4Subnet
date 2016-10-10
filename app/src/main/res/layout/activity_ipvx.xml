@@ -20,11 +20,11 @@
         android:textColor="#ffffff"
         android:hint="@string/ip_hint"
         android:textColorHint="#c5c5c5"
-        android:singleLine="true"
+        android:maxLines="1"
         android:layout_alignEnd="@+id/scroller"
         android:background="@xml/editborder"
         android:clickable="true"
-        android:editable="true"/>
+        />
 
     <ScrollView
         android:id="@+id/scroller"
@@ -42,8 +42,8 @@
             android:id="@+id/textView"
             android:freezesText="false"
             android:textAlignment="viewStart"
-            android:singleLine="false"
-            android:background="#000000"/>
+            android:background="#000000"
+            />
     </ScrollView>
 
     <!-- custom keyboard -->

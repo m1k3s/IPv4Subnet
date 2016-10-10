@@ -30,7 +30,7 @@ public class IPv4Activity extends Activity {
     private CalculateSubnetIPv4 subnet4 = CalculateSubnetIPv4.INSTANCE;
     private TextView textView;
     private EditText editText;
-    private CustomIPv4Keyboard customIPv4Keyboard = CustomIPv4Keyboard.INSTANCE;
+    private CustomIPv4Keyboard customIPv4Keyboard = new CustomIPv4Keyboard();
 
     private enum AddrType {CIDR, IP_NETMASK, IP_ONLY, MULTICAST, RESERVED, INVALID}
 
@@ -161,7 +161,7 @@ public class IPv4Activity extends Activity {
     private abstract class IPAddressValidator implements TextWatcher {
         private final TextView validatorTextView;
 
-        public IPAddressValidator (EditText editText) {
+        IPAddressValidator(EditText editText) {
             this.validatorTextView = editText;
         }
 
@@ -266,9 +266,9 @@ public class IPv4Activity extends Activity {
     protected void displayVersionLogo() {
         String logoString = "<small><font color=#4169E1><b>IPvX</font>"
                             + "<font color=#00CC00>Subnet\u00A0-\u00A0</b></font>"
-                            + "<font color=#C5C5C5><u><b>Michael</b></u></font>"
+                            + "<font color=#4169E1><u><b>Michael</b></u></font>"
                             + "<font color=#DF0000><u>Sheppard</u></font>"
-                            + "<font color=#4169E1>\u00A0-\u00A0<b>&copy 2015</b></font>"
+                            + "<font color=#4169E1>\u00A0-\u00A0<b>&copy 2016</b></font>"
                             + "<font color=#C5C5C5>\u00A0" + version + "</font>\n";
 
         textView.append ("\n\n");

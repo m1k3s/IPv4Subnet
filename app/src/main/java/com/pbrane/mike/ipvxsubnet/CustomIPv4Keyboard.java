@@ -27,13 +27,13 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
 
     private KeyboardView keyboardView;
     private Activity hostActivity;
-    public final static CustomIPv4Keyboard INSTANCE = new CustomIPv4Keyboard();
+//    final CustomIPv4Keyboard INSTANCE = new CustomIPv4Keyboard();
 
-    private CustomIPv4Keyboard() { // avoids instantiation
+    CustomIPv4Keyboard() { // avoids instantiation
 
     }
 
-    public void init (Activity host, int viewID, int layoutID) {
+    void init(Activity host, int viewID, int layoutID) {
         hostActivity = host;
         keyboardView = (KeyboardView) hostActivity.findViewById (viewID);
         keyboardView.setKeyboard (new Keyboard (hostActivity, layoutID) );
@@ -105,13 +105,13 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
         hostActivity.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
-    public boolean isCustomKeyboardVisible() {
+    private boolean isCustomKeyboardVisible() {
         return keyboardView.getVisibility() == View.VISIBLE;
     }
 
     // make the CustomKeyboard visible with slide animation and fade in
     // and hide the system keyboard for view.
-    public void showCustomKeyboard (View v) {
+    private void showCustomKeyboard(View v) {
         keyboardView.animate().translationY (0).alpha (1.0f)
         .setListener (new AnimatorListenerAdapter() {
             @Override
@@ -127,7 +127,7 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
     }
 
     // hide the CustomKeyboard with slide animation and fade out
-    public void hideCustomKeyboard() {
+    void hideCustomKeyboard() {
         keyboardView.animate().translationY (keyboardView.getHeight() ).alpha (0.0f)
         .setListener (new AnimatorListenerAdapter() {
             @Override
@@ -139,7 +139,7 @@ class CustomIPv4Keyboard implements android.content.DialogInterface.OnClickListe
         });
     }
 
-    public void registerEditText (int resid) {
+    void registerEditText(int resid) {
         final EditText edittext = (EditText) hostActivity.findViewById (resid);
         // set the custom keyboard visible
         edittext.setOnFocusChangeListener (new OnFocusChangeListener() {
