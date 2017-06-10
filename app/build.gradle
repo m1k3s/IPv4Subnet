@@ -34,12 +34,12 @@ android {
         release {
             keyAlias 'android'
             keyPassword System.getenv("KEYPWD")
-            storeFile file('/home/mike/.keystore-android.jks')
+            storeFile file(System.getenv('HOME') + '/.keystore-android.jks')
             storePassword System.getenv("KSTOREPWD")
         }
     }
-    compileSdkVersion 22
-    buildToolsVersion '22.0.1'
+    compileSdkVersion 23
+    buildToolsVersion '25.0.0'
     defaultConfig {
         applicationId 'com.pbrane.mike.ipvxsubnet'
         minSdkVersion 22
@@ -67,5 +67,5 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:22.0.0'
+    compile 'com.android.support:appcompat-v7:23.0.0'
 }
