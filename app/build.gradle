@@ -34,17 +34,16 @@ android {
         release {
             keyAlias 'android'
             keyPassword System.getenv("KEYPWD")
-            storeFile file('/home/mike/.keystore-android.jks')
+            storeFile file(System.getenv('HOME') + '/.keystore-android.jks')
             storePassword System.getenv("KSTOREPWD")
         }
     }
-    compileSdkVersion 22
-    buildToolsVersion '22.0.1'
+    compileSdkVersion 23
+    buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId 'com.pbrane.mike.ipvxsubnet'
-        minSdkVersion 19
-        targetSdkVersion 22
-        versionCode getVersionCode()
+        minSdkVersion 22
+        targetSdkVersion 23
         versionName getVersionName()
     }
     buildTypes {
@@ -53,11 +52,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
             applicationVariants.all { variant ->
-                variant.outputs.each { output ->
+                variant.outputs.all { output ->
                     def vstr = variant.versionName.toString().split("-")
-                    def appName = "ipvxsubnet-" + vstr[0] + "-" + vstr[1]
-                    output.outputFile = new File(output.outputFile.parent,
-                            output.outputFile.name.replace("app-release", appName))
+                    def appName = "ipvxsubnet-" + vstr[0] + "-" + vstr[1] + ".apk"
+                    outputFileName = new File(appName)
                 }
             }
         }
@@ -68,5 +66,5 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:22.0.0'
+    compile 'com.android.support:appcompat-v7:23.4.0'
 }
